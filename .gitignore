@@ -142,6 +142,8 @@ cython_debug/
 # Node.js
 node_modules/
 .npm/
+.npm-cache/
+.angular/
 npm-debug.log*
 
 # Svelte/Vite

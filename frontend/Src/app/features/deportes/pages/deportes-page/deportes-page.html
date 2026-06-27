@@ -1,0 +1,19 @@
+<div class="container py-4">
+  <h2 class="fw-bold mb-4">Deportes</h2>
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border text-primary" role="status"></div>
+  </div>
+  <div *ngIf="!loading && deportes.length === 0" class="alert alert-info">
+    No hay deportes registrados.
+  </div>
+  <div class="row g-4" *ngIf="!loading && deportes.length > 0">
+    <div class="col-md-4" *ngFor="let deporte of deportes">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title fw-bold">{{ deporte.nombre }}</h5>
+          <p class="card-text text-muted">{{ deporte.descripcion }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -187,6 +187,16 @@ export async function inscribirEstudiante(datos, token) {
     },
     body: JSON.stringify(datos)
   })
+  
+  if (!res.ok) {
+    let errMsg = "Error desconocido al inscribir";
+    try {
+      const err = await res.json();
+      errMsg = err.detail || errMsg;
+    } catch(e) {}
+    throw new Error(errMsg);
+  }
+  
   return await res.json()
 }
 

@@ -1,0 +1,44 @@
+<div class="p-4 animate__animated animate__fadeIn">
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+      <div class="d-flex align-items-center mb-4 gap-3">
+        <button class="btn btn-sm btn-light rounded-circle" type="button" (click)="volver()" title="Volver">
+          <i class="bi bi-arrow-left"></i>
+        </button>
+        <div class="bg-primary text-white rounded-circle p-2 d-flex align-items-center justify-content-center" style="width:40px;height:40px">
+          <i class="bi bi-person-gear"></i>
+        </div>
+        <h4 class="fw-bold m-0">Mi Perfil</h4>
+      </div>
+
+      <div *ngIf="success" class="alert alert-success border-0 shadow-sm rounded-4 mb-4">Perfil actualizado correctamente.</div>
+      <div *ngIf="errorMsg" class="alert alert-danger border-0 shadow-sm rounded-4 mb-4">{{ errorMsg }}</div>
+
+      <form class="card border-0 shadow-sm rounded-4 p-4 p-md-5" (ngSubmit)="guardarPerfil()">
+        <label class="form-label fw-bold text-muted small text-uppercase">Nombre Completo</label>
+        <input class="form-control bg-light mb-4 py-3" [(ngModel)]="formData.nombre" name="nombre">
+
+        <label class="form-label fw-bold text-muted small text-uppercase">Correo Electronico</label>
+        <input class="form-control bg-light mb-4 py-3" type="email" [(ngModel)]="formData.email" name="email">
+
+        <label class="form-label fw-bold text-muted small text-uppercase">Numero de Documento</label>
+        <input class="form-control bg-light mb-4 py-3" [(ngModel)]="formData.numero_documento" name="numero_documento">
+
+        <button *ngIf="!editandoPassword" type="button" class="btn btn-outline-secondary btn-sm rounded-pill mb-4" (click)="editandoPassword = true">
+          <i class="bi bi-key me-1"></i>Cambiar Contrasena
+        </button>
+
+        <div *ngIf="editandoPassword" class="mb-4">
+          <label class="form-label fw-bold text-muted small text-uppercase">Nueva Contrasena</label>
+          <input type="password" class="form-control bg-light py-3" [(ngModel)]="newPassword" name="newPassword">
+          <button type="button" class="btn btn-link btn-sm text-muted mt-1" (click)="cancelarPassword()">Cancelar cambio</button>
+        </div>
+
+        <button class="btn btn-primary btn-lg w-100 rounded-3 py-3 fw-bold shadow-sm" [disabled]="loading">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+          Guardar Cambios
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

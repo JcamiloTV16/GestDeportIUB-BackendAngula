@@ -1,0 +1,29 @@
+<div class="container py-4">
+  <h2 class="fw-bold mb-4">Cursos y Horarios</h2>
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border text-primary" role="status"></div>
+  </div>
+  <div *ngIf="!loading && horarios.length === 0" class="alert alert-info">
+    No hay cursos registrados.
+  </div>
+  <div class="table-responsive" *ngIf="!loading && horarios.length > 0">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Día</th>
+          <th>Horario</th>
+          <th>Cupo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let h of horarios">
+          <td>{{ h.id }}</td>
+          <td>{{ h.dia_semana }}</td>
+          <td>{{ h.hora_inicio }} - {{ h.hora_fin }}</td>
+          <td>{{ h.cupo }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

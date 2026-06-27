@@ -10,6 +10,7 @@ class HorarioBase(BaseModel):
     hora_inicio: time
     hora_fin: time
     lugar: Optional[str] = None
+    cupo: Optional[int] = 20
 
 class HorarioCreate(HorarioBase):
     pass

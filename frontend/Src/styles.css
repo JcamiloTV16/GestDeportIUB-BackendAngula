@@ -1,0 +1,123 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap');
+
+:root {
+  --iub-navy: #1a2b4b;
+  --iub-gold: #f2cb05;
+  --iub-navy-light: #2a3b5b;
+  --iub-white: #ffffff;
+  --iub-gray-light: #f8f9fa;
+  --iub-text: #333333;
+  --iub-border: #e0e0e0;
+}
+
+body {
+  margin: 0;
+  font-family: 'Open Sans', sans-serif;
+  color: var(--iub-text);
+  background-color: var(--iub-gray-light);
+}
+
+h1, h2, h3, h4, h5, h6, .fw-bold {
+  font-family: 'Montserrat', sans-serif !important;
+}
+
+.text-primary {
+  color: var(--iub-navy) !important;
+}
+
+.bg-primary, .btn-primary {
+  background-color: var(--iub-navy) !important;
+  border-color: var(--iub-navy) !important;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--iub-navy-light) !important;
+  border-color: var(--iub-navy-light) !important;
+}
+
+.login-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--iub-navy) 0%, #000 100%);
+  display: flex;
+  align-items: center;
+}
+
+.login-card {
+  max-width: 450px;
+  width: 90%;
+  border-radius: 24px !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35) !important;
+}
+
+.logo-circle {
+  width: 90px;
+  height: 90px;
+  background: var(--iub-navy);
+  border: 4px solid var(--iub-gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sub-menu-admin {
+  min-height: 60px;
+  overflow-x: auto;
+}
+
+.btn-pestana {
+  border: none;
+  background: none;
+  padding: 0 1rem;
+  min-height: 60px;
+  font-weight: 700;
+  color: #666;
+  border-bottom: 4px solid transparent;
+  white-space: nowrap;
+}
+
+.btn-pestana:hover,
+.btn-pestana.activa {
+  color: var(--iub-navy);
+  background-color: rgba(26, 43, 75, 0.05);
+}
+
+.btn-pestana.activa {
+  border-bottom-color: var(--iub-gold);
+}
+
+.table thead th {
+  background-color: var(--iub-navy) !important;
+  color: var(--iub-white) !important;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.sport-card,
+.soft-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sport-card:hover,
+.soft-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.09) !important;
+}
+
+.icon-box {
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.chatbot-wrapper {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1000;
+  width: min(360px, calc(100vw - 32px));
+}

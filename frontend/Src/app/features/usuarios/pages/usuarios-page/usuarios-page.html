@@ -1,0 +1,27 @@
+<div class="container py-4">
+  <h2 class="fw-bold mb-4">Usuarios</h2>
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border text-primary" role="status"></div>
+  </div>
+  <div *ngIf="!loading && usuarios.length === 0" class="alert alert-info">
+    No hay usuarios registrados.
+  </div>
+  <div class="table-responsive" *ngIf="!loading && usuarios.length > 0">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Correo</th>
+          <th>Documento</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let u of usuarios">
+          <td>{{ u.nombre }}</td>
+          <td>{{ u.email || u.correo }}</td>
+          <td>{{ u.numero_documento }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,28 @@
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold m-0">Panel de Entrenador</h2>
+  </div>
+
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-2">
+      <ul class="nav nav-pills nav-justified">
+        <li class="nav-item">
+          <button class="nav-link" [class.active]="vistaActual === 'grupos'" (click)="cambiarVista('grupos')">Mis Grupos</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" [class.active]="vistaActual === 'torneos'" (click)="cambiarVista('torneos')">Torneos</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm p-4">
+    <div *ngIf="vistaActual === 'grupos'">
+      <h4>Mis Grupos</h4>
+      <p class="text-muted">Tus grupos asignados aparecerán aquí.</p>
+    </div>
+    <div *ngIf="vistaActual === 'torneos'">
+      <p>Gestión de torneos.</p>
+    </div>
+  </div>
+</div>
