@@ -1,0 +1,138 @@
+<div>
+  <!-- Alertas de feedback -->
+  <div *ngIf="mensajeExito" class="alert alert-success alert-dismissible fade show">
+    {{ mensajeExito }}
+    <button type="button" class="btn-close" (click)="mensajeExito = ''"></button>
+  </div>
+  <div *ngIf="mensajeError" class="alert alert-danger alert-dismissible fade show">
+    {{ mensajeError }}
+    <button type="button" class="btn-close" (click)="mensajeError = ''"></button>
+  </div>
+
+  <div class="card border-0 shadow-sm p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="fw-bold m-0">Gestión de Torneos</h4>
+      <button class="btn btn-warning" (click)="abrirModalTorneo()">
+        <i class="bi bi-plus-lg me-1"></i> Nuevo Torneo
+      </button>
+    </div>
+
+    <div *ngIf="loadingTorneos" class="text-center py-4">
+      <div class="spinner-border text-primary" role="status"></div>
+    </div>
+
+    <div *ngIf="!loadingTorneos && torneos.length === 0" class="alert alert-info">
+      No hay torneos registrados.
+    </div>
+
+    <div class="table-responsive" *ngIf="!loadingTorneos && torneos.length > 0">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Deporte</th>
+            <th>Población</th>
+            <th>Fecha Inicio</th>
+            <th>Estado</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of torneos">
+            <td>{{ t.id }}</td>
+            <td class="fw-semibold">{{ t.nombre }}</td>
+            <td>{{ t.deporte_nombre || 'N/A' }}</td>
+            <td>{{ t.poblacion_objetivo || 'Todos' }}</td>
+            <td>{{ t.fecha_inicio }}</td>
+            <td>
+              <span class="badge"
+                [class.bg-secondary]="t.estado_torneo === 'Próximamente'"
+                [class.bg-success]="t.estado_torneo === 'Inscripciones Abiertas'"
+                [class.bg-primary]="t.estado_torneo === 'En Curso'"
+                [class.bg-dark]="t.estado_torneo === 'Finalizado'">
+                {{ t.estado_torneo }}
+              </span>
+            </td>
+            <td class="text-center">
+              <button class="btn btn-sm btn-outline-primary me-1" (click)="abrirModalTorneo(t)">
+                <i class="bi bi-pencil"></i> Editar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal Crear/Editar Torneo -->
+  <div *ngIf="mostrarModalTorneo" class="modal d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">{{ editandoTorneoId ? 'Editar Torneo' : 'Crear Torneo' }}</h5>
+          <button type="button" class="btn-close" (click)="cerrarModalTorneo()"></button>
+        </div>
+        <form [formGroup]="torneoForm" (ngSubmit)="guardarTorneo()">
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Nombre *</label>
+                <input type="text" class="form-control" formControlName="nombre"
+                  [class.is-invalid]="torneoForm.get('nombre')?.invalid && torneoForm.get('nombre')?.touched">
+                <div class="invalid-feedback">El nombre es obligatorio.</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Deporte</label>
+                <select class="form-select" formControlName="deporte_id">
+                  <option [ngValue]="null">Sin asignar</option>
+                  <option *ngFor="let d of deportes" [ngValue]="d.id">{{ d.nombre }}</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Descripción</label>
+                <textarea class="form-control" rows="2" formControlName="descripcion"></textarea>
+              </div>
+              
+              <!-- NUEVOS CAMPOS -->
+              <div class="col-md-6">
+                <label class="form-label">Población Objetivo</label>
+                <select class="form-select" formControlName="poblacion_objetivo">
+                  <option value="Todos">Todos</option>
+                  <option value="Estudiantes">Solo Estudiantes</option>
+                  <option value="Funcionarios">Solo Funcionarios</option>
+                  <option value="Egresados">Solo Egresados</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Reglas Específicas (JSON)</label>
+                <textarea class="form-control" rows="2" formControlName="reglas_json_texto" placeholder='{"goles": 2}'></textarea>
+                <small class="text-muted">Escribe un objeto JSON válido.</small>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label">Fecha Inicio *</label>
+                <input type="date" class="form-control" formControlName="fecha_inicio"
+                  [class.is-invalid]="torneoForm.get('fecha_inicio')?.invalid && torneoForm.get('fecha_inicio')?.touched">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Fecha Fin</label>
+                <input type="date" class="form-control" formControlName="fecha_fin">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Lugar</label>
+                <input type="text" class="form-control" formControlName="lugar">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="cerrarModalTorneo()">Cancelar</button>
+            <button type="submit" class="btn btn-warning">
+              {{ editandoTorneoId ? 'Actualizar' : 'Crear' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

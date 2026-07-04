@@ -1,0 +1,177 @@
+<div class="row">
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm p-3 mb-4">
+      <h5 class="fw-bold border-bottom pb-2">Torneos Activos</h5>
+      <div *ngIf="loadingTorneos" class="text-center py-3">
+        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+      </div>
+      <div *ngIf="!loadingTorneos && torneosActivos.length === 0" class="text-muted small">
+        No hay torneos en curso actualmente.
+      </div>
+      <div class="list-group list-group-flush">
+        <button *ngFor="let t of torneosActivos" 
+                class="list-group-item list-group-item-action py-2"
+                [class.active]="torneoSeleccionado?.id === t.id"
+                (click)="seleccionarTorneo(t)">
+          <div class="fw-bold">{{ t.nombre }}</div>
+          <small class="d-block">{{ t.deporte_nombre }} | {{ t.estado_torneo }}</small>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-8">
+    <div *ngIf="!torneoSeleccionado" class="card border-0 shadow-sm p-5 text-center">
+      <h5 class="text-muted"><i class="bi bi-arrow-left-circle me-2"></i> Selecciona un torneo para ver el seguimiento en vivo.</h5>
+    </div>
+
+    <div *ngIf="torneoSeleccionado" class="card border-0 shadow-sm p-4">
+      <h4 class="fw-bold">{{ torneoSeleccionado.nombre }}</h4>
+      <p class="text-muted mb-4">Seguimiento y registro de estadísticas en tiempo real.</p>
+      
+      <!-- Alertas de feedback -->
+      <div *ngIf="mensajeExito" class="alert alert-success alert-dismissible fade show">
+        {{ mensajeExito }}
+      </div>
+      <div *ngIf="mensajeError" class="alert alert-danger alert-dismissible fade show">
+        {{ mensajeError }}
+      </div>
+
+      <div class="row g-4">
+        <!-- Formulario Registro Estadística -->
+        <div class="col-md-6">
+          <div class="bg-light p-3 rounded">
+            <h6 class="fw-bold">Registrar Evento / Estadística</h6>
+            <form [formGroup]="statForm" (ngSubmit)="guardarEstadistica()">
+              <div class="mb-2">
+                <label class="form-label small">Participante</label>
+                <select class="form-select form-select-sm" formControlName="usuario_id">
+                  <option [ngValue]="null">Seleccione...</option>
+                  <option *ngFor="let p of inscritos" [ngValue]="p.usuario_id">{{ p.usuario_nombre }}</option>
+                </select>
+              </div>
+              <div class="mb-2">
+                <label class="form-label small">Tipo (ej. Goles, Tiempo, Sets)</label>
+                <input type="text" class="form-control form-control-sm" formControlName="tipo_estadistica" placeholder="Goles">
+              </div>
+              <div class="mb-3">
+                <label class="form-label small">Valor (JSON)</label>
+                <textarea class="form-control form-control-sm" rows="2" formControlName="valor_json_texto"></textarea>
+                <small class="text-muted" style="font-size: 0.75rem;">Ej: &#123;"cantidad": 1&#125; o &#123;"tiempo": "00:45:00"&#125;</small>
+              </div>
+              <button type="submit" class="btn btn-sm btn-primary w-100" [disabled]="loadingDetalle || statForm.invalid">
+                <i class="bi bi-plus-circle me-1"></i> Registrar
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Tabla de Estadísticas Recientes -->
+        <div class="col-md-6">
+          <h6 class="fw-bold">Últimos Eventos Registrados</h6>
+          <div *ngIf="loadingDetalle" class="text-center py-3">
+            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+          </div>
+          <div *ngIf="!loadingDetalle && estadisticas.length === 0" class="text-muted small">
+            No hay eventos registrados aún.
+          </div>
+          
+          <div *ngIf="!loadingDetalle && estadisticas.length > 0" class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+            <table class="table table-sm table-hover" style="font-size: 0.85rem;">
+              <thead class="table-light sticky-top">
+                <tr>
+                  <th>Jugador</th>
+                  <th>Tipo</th>
+                  <th>Valor</th>
+                  <th>Fecha</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let e of estadisticas">
+                  <td class="fw-bold">{{ e.usuario_nombre }}</td>
+                  <td>{{ e.tipo_estadistica }}</td>
+                  <td>{{ e.valor_json | json }}</td>
+                  <td>{{ e.fecha_registro | date:'short' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tablas Dinámicas por Deporte -->
+      <div class="mt-4 pt-3 border-top">
+        <h5 class="fw-bold text-primary mb-3"><i class="bi bi-bar-chart-fill me-2"></i> Estadísticas Consolidadas</h5>
+
+        <!-- FÚTBOL -->
+        <div *ngIf="torneoSeleccionado.deporte_nombre === 'Fútbol'">
+          <h6 class="fw-bold">⚽ Goleadores & Asistencias</h6>
+          <table class="table table-sm table-striped">
+            <thead class="table-dark"><tr><th>#</th><th>Jugador</th><th class="text-center">⚽ Goles</th><th class="text-center">🎯 Asistencias</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let item of tablaGoleadoresFutbol; let i = index">
+                <td class="text-muted">{{ i + 1 }}</td>
+                <td>{{ item.jugador }}</td>
+                <td class="text-center fw-bold text-success">{{ item.goles }}</td>
+                <td class="text-center fw-bold text-primary">{{ item.asistencias }}</td>
+              </tr>
+              <tr *ngIf="tablaGoleadoresFutbol.length === 0"><td colspan="4" class="text-muted">No hay datos registrados.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- BALONCESTO -->
+        <div *ngIf="torneoSeleccionado.deporte_nombre === 'Baloncesto'">
+          <h6 class="fw-bold">🏀 Máximos Anotadores</h6>
+          <table class="table table-sm table-striped">
+            <thead class="table-dark"><tr><th>#</th><th>Jugador</th><th class="text-center">Puntos</th><th class="text-center">Rebotes</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let item of tablaAnotadoresBaloncesto; let i = index">
+                <td class="text-muted">{{ i + 1 }}</td>
+                <td>{{ item.jugador }}</td>
+                <td class="text-center fw-bold text-warning">{{ item.puntos }}</td>
+                <td class="text-center text-secondary">{{ item.rebotes }}</td>
+              </tr>
+              <tr *ngIf="tablaAnotadoresBaloncesto.length === 0"><td colspan="4" class="text-muted">No hay datos registrados.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ATLETISMO -->
+        <div *ngIf="torneoSeleccionado.deporte_nombre === 'Atletismo'">
+          <h6 class="fw-bold">🏃 Mejores Tiempos</h6>
+          <table class="table table-sm table-striped">
+            <thead class="table-dark"><tr><th>#</th><th>Atleta</th><th class="text-center">Mejor Tiempo (s)</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let item of tablaTiemposAtletismo; let i = index">
+                <td class="text-muted">{{ i + 1 }}</td>
+                <td>{{ item.atleta }}</td>
+                <td class="text-center fw-bold text-info">{{ item.tiempo }} s</td>
+              </tr>
+              <tr *ngIf="tablaTiemposAtletismo.length === 0"><td colspan="3" class="text-muted">No hay tiempos registrados.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- AJEDREZ -->
+        <div *ngIf="torneoSeleccionado.deporte_nombre === 'Ajedrez'">
+          <h6 class="fw-bold">♟️ Tabla de Posiciones — Sistema Suizo</h6>
+          <table class="table table-sm table-striped">
+            <thead class="table-dark"><tr><th>#</th><th>Jugador</th><th class="text-center">Puntos</th><th class="text-center">✅ Victorias</th><th class="text-center">🤝 Empates</th><th class="text-center">❌ Derrotas</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let item of tablaRankingAjedrez; let i = index">
+                <td class="text-muted">{{ i + 1 }}</td>
+                <td>{{ item.jugador }}</td>
+                <td class="text-center fw-bold text-warning">{{ item.puntos }}</td>
+                <td class="text-center text-success">{{ item.victorias }}</td>
+                <td class="text-center text-secondary">{{ item.empates }}</td>
+                <td class="text-center text-danger">{{ item.derrotas }}</td>
+              </tr>
+              <tr *ngIf="tablaRankingAjedrez.length === 0"><td colspan="6" class="text-muted">No hay partidas registradas.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

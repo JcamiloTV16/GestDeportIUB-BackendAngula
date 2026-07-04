@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.config.db_config import get_db_connection
 from app.routes.user_routes import router as user_router
 from app.routes.role_routes import router as role_router
 from app.routes.modulo_routes import router as modulo_router
@@ -13,6 +14,8 @@ from app.routes.auth_routes import router as auth_router
 from app.routes.torneo_routes import router as torneo_router
 from app.routes.inscripcion_torneo_routes import router as inscripcion_torneo_router
 from app.routes.chatbot_routes import router as chatbot_router
+from app.routes.dashboard_routes import router as dashboard_router
+from app.routes.estadisticas_routes import router as estadisticas_router
 
 app = FastAPI()
 
@@ -48,6 +51,8 @@ app.include_router(auth_router)
 app.include_router(torneo_router)
 app.include_router(inscripcion_torneo_router)
 app.include_router(chatbot_router)
+app.include_router(dashboard_router)
+app.include_router(estadisticas_router)
 
 if __name__ == "__main__":
     import uvicorn

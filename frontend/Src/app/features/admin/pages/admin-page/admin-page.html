@@ -1,8 +1,10 @@
 <div class="container py-4">
+  <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="fw-bold m-0">Panel de Administrador</h2>
   </div>
 
+  <!-- Tabs de navegación -->
   <div class="card border-0 shadow-sm mb-4">
     <div class="card-body p-2">
       <ul class="nav nav-pills nav-justified">
@@ -13,29 +15,73 @@
           <button class="nav-link" [class.active]="vistaActual === 'usuarios'" (click)="cambiarVista('usuarios')">Usuarios</button>
         </li>
         <li class="nav-item">
+          <button class="nav-link" [class.active]="vistaActual === 'deportes'" (click)="cambiarVista('deportes')">Deportes</button>
+        </li>
+        <li class="nav-item">
           <button class="nav-link" [class.active]="vistaActual === 'cursos'" (click)="cambiarVista('cursos')">Cursos</button>
         </li>
         <li class="nav-item">
-          <button class="nav-link" [class.active]="vistaActual === 'deportes'" (click)="cambiarVista('deportes')">Deportes</button>
+          <button class="nav-link" [class.active]="vistaActual === 'torneos'" (click)="cambiarVista('torneos')">Torneos</button>
         </li>
       </ul>
     </div>
   </div>
 
-  <div class="card border-0 shadow-sm p-4">
-    <div *ngIf="vistaActual === 'dashboard'">
-      <h4>Dashboard Informativo</h4>
-      <p class="text-muted">Bienvenido al panel de administración.</p>
+  <!-- ============================================================ -->
+  <!-- DASHBOARD -->
+  <!-- ============================================================ -->
+  <div *ngIf="vistaActual === 'dashboard'" class="card border-0 shadow-sm p-4">
+    <h4 class="fw-bold mb-4">Dashboard Informativo</h4>
+    <div *ngIf="loadingStats" class="text-center py-4">
+      <div class="spinner-border text-primary" role="status"></div>
     </div>
-    <div *ngIf="vistaActual === 'usuarios'">
-      <!-- Aquí iría el componente de usuarios o un router-outlet -->
-      <p>Gestión de usuarios se maneja en la página de usuarios.</p>
-    </div>
-    <div *ngIf="vistaActual === 'cursos'">
-      <p>Gestión de cursos se maneja en la página de cursos.</p>
-    </div>
-    <div *ngIf="vistaActual === 'deportes'">
-      <p>Gestión de deportes se maneja en la página de deportes.</p>
+    <div *ngIf="!loadingStats" class="row g-4">
+      <div class="col-md-4 col-lg-2">
+        <div class="card bg-primary text-white text-center p-3">
+          <h3 class="fw-bold mb-1">{{ stats.total_usuarios || 0 }}</h3>
+          <small>Usuarios</small>
+        </div>
+      </div>
+      <div class="col-md-4 col-lg-2">
+        <div class="card bg-success text-white text-center p-3">
+          <h3 class="fw-bold mb-1">{{ stats.total_deportes || 0 }}</h3>
+          <small>Deportes</small>
+        </div>
+      </div>
+      <div class="col-md-4 col-lg-2">
+        <div class="card bg-info text-white text-center p-3">
+          <h3 class="fw-bold mb-1">{{ stats.total_cursos || 0 }}</h3>
+          <small>Cursos</small>
+        </div>
+      </div>
+      <div class="col-md-4 col-lg-2">
+        <div class="card bg-warning text-dark text-center p-3">
+          <h3 class="fw-bold mb-1">{{ stats.total_torneos || 0 }}</h3>
+          <small>Torneos</small>
+        </div>
+      </div>
+      <div class="col-md-4 col-lg-2">
+        <div class="card bg-secondary text-white text-center p-3">
+          <h3 class="fw-bold mb-1">{{ stats.total_entrenadores || 0 }}</h3>
+          <small>Entrenadores</small>
+        </div>
+      </div>
+      <div class="col-md-4 col-lg-2">
+        <div class="card bg-dark text-white text-center p-3">
+          <h3 class="fw-bold mb-1">{{ stats.total_inscripciones || 0 }}</h3>
+          <small>Inscripciones</small>
+        </div>
+      </div>
     </div>
   </div>
+
+  <!-- ============================================================ -->
+  <!-- VISTAS DE FUNCIONALIDADES MODULARIZADAS -->
+  <!-- ============================================================ -->
+
+  <app-usuarios-admin *ngIf="vistaActual === 'usuarios'"></app-usuarios-admin>
+  <app-deportes-admin *ngIf="vistaActual === 'deportes'"></app-deportes-admin>
+  <app-cursos-admin *ngIf="vistaActual === 'cursos'"></app-cursos-admin>
+  <app-torneos-admin *ngIf="vistaActual === 'torneos'"></app-torneos-admin>
+
 </div>

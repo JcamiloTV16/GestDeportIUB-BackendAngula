@@ -13,6 +13,14 @@ export class UsuariosService {
     return this.api.request(`${API}/usuarios/inactivos/`, { headers: this.api.authHeaders() });
   }
 
+  crearUsuario(usuario: Record<string, unknown>) {
+    return this.api.request(`${API}/usuarios/`, {
+      method: 'POST',
+      headers: this.api.jsonHeaders(),
+      body: JSON.stringify(usuario)
+    });
+  }
+
   actualizarUsuario(id: number, usuario: Record<string, unknown>) {
     return this.api.request(`${API}/usuarios/${id}`, {
       method: 'PUT',

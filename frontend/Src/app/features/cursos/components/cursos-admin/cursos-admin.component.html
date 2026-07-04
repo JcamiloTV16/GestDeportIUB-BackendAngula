@@ -1,0 +1,140 @@
+<div>
+  <!-- Alertas de feedback -->
+  <div *ngIf="mensajeExito" class="alert alert-success alert-dismissible fade show">
+    {{ mensajeExito }}
+    <button type="button" class="btn-close" (click)="mensajeExito = ''"></button>
+  </div>
+  <div *ngIf="mensajeError" class="alert alert-danger alert-dismissible fade show">
+    {{ mensajeError }}
+    <button type="button" class="btn-close" (click)="mensajeError = ''"></button>
+  </div>
+
+  <div class="card border-0 shadow-sm p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="fw-bold m-0">Gestión de Cursos</h4>
+      <button class="btn btn-info text-white" (click)="abrirModalCurso()">
+        <i class="bi bi-plus-lg me-1"></i> Nuevo Curso
+      </button>
+    </div>
+
+    <div *ngIf="loadingCursos" class="text-center py-4">
+      <div class="spinner-border text-primary" role="status"></div>
+    </div>
+
+    <div *ngIf="!loadingCursos && cursos.length === 0" class="alert alert-info">
+      No hay cursos registrados.
+    </div>
+
+    <div class="table-responsive" *ngIf="!loadingCursos && cursos.length > 0">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Deporte</th>
+            <th>Día</th>
+            <th>Horario</th>
+            <th>Lugar</th>
+            <th>Cupo</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of cursos">
+            <td>{{ c.id }}</td>
+            <td class="fw-semibold">{{ c.deporte_nombre || 'N/A' }}</td>
+            <td>{{ c.dia_semana }}</td>
+            <td>{{ c.hora_inicio }} - {{ c.hora_fin }}</td>
+            <td>{{ c.lugar || 'N/A' }}</td>
+            <td>{{ c.cupo }}</td>
+            <td class="text-center">
+              <button class="btn btn-sm btn-outline-primary me-1" (click)="abrirModalCurso(c)">
+                <i class="bi bi-pencil"></i> Editar
+              </button>
+              <button class="btn btn-sm btn-outline-danger" (click)="desactivarCurso(c.id)">
+                <i class="bi bi-trash"></i> Desactivar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal Crear/Editar Curso -->
+  <div *ngIf="mostrarModalCurso" class="modal d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">{{ editandoCursoId ? 'Editar Curso' : 'Crear Curso' }}</h5>
+          <button type="button" class="btn-close" (click)="cerrarModalCurso()"></button>
+        </div>
+        <form [formGroup]="cursoForm" (ngSubmit)="guardarCurso()">
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Deporte *</label>
+                <select class="form-select" formControlName="deporte_id"
+                  [class.is-invalid]="cursoForm.get('deporte_id')?.invalid && cursoForm.get('deporte_id')?.touched">
+                  <option [ngValue]="null" disabled>Seleccione un deporte</option>
+                  <option *ngFor="let d of deportes" [ngValue]="d.id">{{ d.nombre }}</option>
+                </select>
+                <div class="invalid-feedback">Seleccione un deporte.</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Entrenador *</label>
+                <select class="form-select" formControlName="entrenador_id"
+                  [class.is-invalid]="cursoForm.get('entrenador_id')?.invalid && cursoForm.get('entrenador_id')?.touched">
+                  <option [ngValue]="null" disabled>Seleccione un entrenador</option>
+                  <option *ngFor="let e of entrenadores" [ngValue]="e.id">{{ e.nombre_usuario }}</option>
+                </select>
+                <div class="invalid-feedback">Seleccione un entrenador.</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Día de la semana *</label>
+                <select class="form-select" formControlName="dia_semana"
+                  [class.is-invalid]="cursoForm.get('dia_semana')?.invalid && cursoForm.get('dia_semana')?.touched">
+                  <option value="" disabled>Seleccione</option>
+                  <option value="Lunes">Lunes</option>
+                  <option value="Martes">Martes</option>
+                  <option value="Miércoles">Miércoles</option>
+                  <option value="Jueves">Jueves</option>
+                  <option value="Viernes">Viernes</option>
+                  <option value="Sábado">Sábado</option>
+                </select>
+                <div class="invalid-feedback">Seleccione un día.</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Hora Inicio *</label>
+                <input type="time" class="form-control" formControlName="hora_inicio"
+                  [class.is-invalid]="cursoForm.get('hora_inicio')?.invalid && cursoForm.get('hora_inicio')?.touched">
+                <div class="invalid-feedback">Hora de inicio es obligatoria.</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Hora Fin *</label>
+                <input type="time" class="form-control" formControlName="hora_fin"
+                  [class.is-invalid]="cursoForm.get('hora_fin')?.invalid && cursoForm.get('hora_fin')?.touched">
+                <div class="invalid-feedback">Hora de fin es obligatoria.</div>
+              </div>
+              <div class="col-md-8">
+                <label class="form-label">Lugar</label>
+                <input type="text" class="form-control" formControlName="lugar">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Cupo *</label>
+                <input type="number" class="form-control" formControlName="cupo" min="1"
+                  [class.is-invalid]="cursoForm.get('cupo')?.invalid && cursoForm.get('cupo')?.touched">
+                <div class="invalid-feedback">El cupo debe ser mayor a 0.</div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="cerrarModalCurso()">Cancelar</button>
+            <button type="submit" class="btn btn-info text-white">
+              {{ editandoCursoId ? 'Actualizar' : 'Crear' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

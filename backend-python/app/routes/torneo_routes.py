@@ -12,6 +12,10 @@ class CambiarEstadoTorneo(BaseModel):
 async def get_torneos():
     return torneo_controller.get_all()
 
+@router.get("/torneos/historial", tags=["Torneos"])
+async def get_torneos_historial():
+    return torneo_controller.get_historial()
+
 @router.get("/torneos/{id}", response_model=Torneo, tags=["Torneos"])
 async def get_torneo(id: int):
     return torneo_controller.get_by_id(id)

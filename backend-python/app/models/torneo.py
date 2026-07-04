@@ -11,6 +11,8 @@ class TorneoBase(BaseModel):
     fecha_fin: Optional[date] = None
     lugar: Optional[str] = None
     estado_torneo: Optional[str] = "Próximamente"
+    poblacion_objetivo: Optional[str] = "Todos"
+    reglas_json: Optional[dict] = None
     creado_por: Optional[int] = None
 
 class TorneoCreate(TorneoBase):

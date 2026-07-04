@@ -1,0 +1,88 @@
+<div>
+  <!-- Alertas de feedback -->
+  <div *ngIf="mensajeExito" class="alert alert-success alert-dismissible fade show">
+    {{ mensajeExito }}
+    <button type="button" class="btn-close" (click)="mensajeExito = ''"></button>
+  </div>
+  <div *ngIf="mensajeError" class="alert alert-danger alert-dismissible fade show">
+    {{ mensajeError }}
+    <button type="button" class="btn-close" (click)="mensajeError = ''"></button>
+  </div>
+
+  <div class="card border-0 shadow-sm p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="fw-bold m-0">Gestión de Deportes</h4>
+      <button class="btn btn-success" (click)="abrirModalDeporte()">
+        <i class="bi bi-plus-lg me-1"></i> Nuevo Deporte
+      </button>
+    </div>
+
+    <div *ngIf="loadingDeportes" class="text-center py-4">
+      <div class="spinner-border text-primary" role="status"></div>
+    </div>
+
+    <div *ngIf="!loadingDeportes && deportes.length === 0" class="alert alert-info">
+      No hay deportes registrados.
+    </div>
+
+    <div class="table-responsive" *ngIf="!loadingDeportes && deportes.length > 0">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let d of deportes">
+            <td>{{ d.id }}</td>
+            <td class="fw-semibold">{{ d.nombre }}</td>
+            <td>{{ d.descripcion || 'Sin descripción' }}</td>
+            <td class="text-center">
+              <button class="btn btn-sm btn-outline-primary me-1" (click)="abrirModalDeporte(d)">
+                <i class="bi bi-pencil"></i> Editar
+              </button>
+              <button class="btn btn-sm btn-outline-danger" (click)="desactivarDeporte(d.id)">
+                <i class="bi bi-trash"></i> Desactivar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal Crear/Editar Deporte -->
+  <div *ngIf="mostrarModalDeporte" class="modal d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">{{ editandoDeporteId ? 'Editar Deporte' : 'Crear Deporte' }}</h5>
+          <button type="button" class="btn-close" (click)="cerrarModalDeporte()"></button>
+        </div>
+        <form [formGroup]="deporteForm" (ngSubmit)="guardarDeporte()">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Nombre *</label>
+              <input type="text" class="form-control" formControlName="nombre"
+                [class.is-invalid]="deporteForm.get('nombre')?.invalid && deporteForm.get('nombre')?.touched">
+              <div class="invalid-feedback">El nombre es obligatorio.</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Descripción</label>
+              <textarea class="form-control" rows="3" formControlName="descripcion"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="cerrarModalDeporte()">Cancelar</button>
+            <button type="submit" class="btn btn-success">
+              {{ editandoDeporteId ? 'Actualizar' : 'Crear' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

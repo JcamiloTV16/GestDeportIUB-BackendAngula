@@ -1,0 +1,133 @@
+<div>
+  <!-- Alertas de feedback -->
+  <div *ngIf="mensajeExito" class="alert alert-success alert-dismissible fade show">
+    {{ mensajeExito }}
+    <button type="button" class="btn-close" (click)="mensajeExito = ''"></button>
+  </div>
+  <div *ngIf="mensajeError" class="alert alert-danger alert-dismissible fade show">
+    {{ mensajeError }}
+    <button type="button" class="btn-close" (click)="mensajeError = ''"></button>
+  </div>
+
+  <div class="card border-0 shadow-sm p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="fw-bold m-0">Gestión de Usuarios</h4>
+      <button class="btn btn-primary" (click)="abrirModalUsuario()">
+        <i class="bi bi-plus-lg me-1"></i> Nuevo Usuario
+      </button>
+    </div>
+
+    <div *ngIf="loadingUsuarios" class="text-center py-4">
+      <div class="spinner-border text-primary" role="status"></div>
+    </div>
+
+    <div *ngIf="!loadingUsuarios && usuarios.length === 0" class="alert alert-info">
+      No hay usuarios registrados.
+    </div>
+
+    <div class="table-responsive" *ngIf="!loadingUsuarios && usuarios.length > 0">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Documento</th>
+            <th>Rol</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of usuarios">
+            <td>{{ u.id }}</td>
+            <td>{{ u.nombre }}</td>
+            <td>{{ u.email || u.correo }}</td>
+            <td>{{ u.numero_documento }}</td>
+            <td>
+              <span class="badge bg-secondary">{{ u.nombre_rol || getNombreRol(u.rol_id) }}</span>
+            </td>
+            <td class="text-center">
+              <button class="btn btn-sm btn-outline-primary me-1" title="Editar" (click)="abrirModalUsuario(u)">
+                <i class="bi bi-pencil"></i> Editar
+              </button>
+              <button class="btn btn-sm btn-outline-danger" title="Desactivar" (click)="desactivarUsuario(u.id)">
+                <i class="bi bi-trash"></i> Desactivar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal Crear/Editar Usuario -->
+  <div *ngIf="mostrarModalUsuario" class="modal d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">{{ editandoUsuarioId ? 'Editar Usuario' : 'Crear Usuario' }}</h5>
+          <button type="button" class="btn-close" (click)="cerrarModalUsuario()"></button>
+        </div>
+        <form [formGroup]="usuarioForm" (ngSubmit)="guardarUsuario()">
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Nombre *</label>
+                <input type="text" class="form-control" formControlName="nombre"
+                  [class.is-invalid]="usuarioForm.get('nombre')?.invalid && usuarioForm.get('nombre')?.touched">
+                <div class="invalid-feedback">El nombre es obligatorio.</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Correo *</label>
+                <input type="email" class="form-control" formControlName="email"
+                  [class.is-invalid]="usuarioForm.get('email')?.invalid && usuarioForm.get('email')?.touched">
+                <div class="invalid-feedback">Ingrese un correo válido.</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Contraseña {{ editandoUsuarioId ? '(dejar vacío para no cambiar)' : '*' }}</label>
+                <input type="password" class="form-control" formControlName="password"
+                  [class.is-invalid]="usuarioForm.get('password')?.invalid && usuarioForm.get('password')?.touched">
+                <div class="invalid-feedback">La contraseña es obligatoria.</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Rol *</label>
+                <select class="form-select" formControlName="rol_id">
+                  <option *ngFor="let r of roles" [ngValue]="r.id">{{ r.nombre_rol || r.nombre }}</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Tipo Documento</label>
+                <select class="form-select" formControlName="tipo_documento_id">
+                  <option [ngValue]="1">C.C.</option>
+                  <option [ngValue]="2">T.I.</option>
+                  <option [ngValue]="3">C.E.</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">N° Documento *</label>
+                <input type="text" class="form-control" formControlName="numero_documento"
+                  [class.is-invalid]="usuarioForm.get('numero_documento')?.invalid && usuarioForm.get('numero_documento')?.touched">
+                <div class="invalid-feedback">El documento es obligatorio.</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Facultad</label>
+                <select class="form-select" formControlName="facultad_id">
+                  <option [ngValue]="1">Ingeniería</option>
+                  <option [ngValue]="2">Ciencias de la Salud</option>
+                  <option [ngValue]="3">Ciencias Sociales</option>
+                  <option [ngValue]="4">Educación</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="cerrarModalUsuario()">Cancelar</button>
+            <button type="submit" class="btn btn-primary">
+              {{ editandoUsuarioId ? 'Actualizar' : 'Crear' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

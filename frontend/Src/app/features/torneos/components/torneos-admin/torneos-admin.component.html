@@ -1,0 +1,34 @@
+<div class="mb-4">
+  <h2 class="fw-bold mb-3">Módulo de Torneos</h2>
+  
+  <ul class="nav nav-pills mb-4 gap-2">
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="tabActual === 'dashboard'" (click)="tabActual = 'dashboard'">
+        <i class="bi bi-graph-up me-1"></i> Dashboard
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="tabActual === 'gestion'" (click)="tabActual = 'gestion'">
+        <i class="bi bi-gear me-1"></i> Gestión
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="tabActual === 'seguimiento'" (click)="tabActual = 'seguimiento'">
+        <i class="bi bi-activity me-1"></i> Seguimiento
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="tabActual === 'historial'" (click)="tabActual = 'historial'">
+        <i class="bi bi-clock-history me-1"></i> Historial
+      </button>
+    </li>
+  </ul>
+
+  <!-- Contenido Dinámico según pestaña -->
+  <div>
+    <app-dashboard-torneos *ngIf="tabActual === 'dashboard'"></app-dashboard-torneos>
+    <app-gestion-torneos *ngIf="tabActual === 'gestion'"></app-gestion-torneos>
+    <app-seguimiento-torneos *ngIf="tabActual === 'seguimiento'"></app-seguimiento-torneos>
+    <app-historial-torneos *ngIf="tabActual === 'historial'"></app-historial-torneos>
+  </div>
+</div>

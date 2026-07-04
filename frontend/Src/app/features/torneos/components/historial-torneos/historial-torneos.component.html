@@ -1,0 +1,38 @@
+<div class="card border-0 shadow-sm p-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold m-0">Historial de Torneos</h4>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-4">
+    <div class="spinner-border text-primary" role="status"></div>
+  </div>
+
+  <div *ngIf="!loading && historial.length === 0" class="alert alert-info">
+    No hay torneos finalizados en el historial.
+  </div>
+
+  <div class="table-responsive" *ngIf="!loading && historial.length > 0">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Deporte</th>
+          <th>Población</th>
+          <th>Fechas</th>
+          <th>Inscritos</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of historial">
+          <td>{{ t.id }}</td>
+          <td class="fw-semibold">{{ t.nombre }}</td>
+          <td>{{ t.deporte_nombre || 'N/A' }}</td>
+          <td>{{ t.poblacion_objetivo || 'Todos' }}</td>
+          <td>{{ t.fecha_inicio }} al {{ t.fecha_fin || 'N/A' }}</td>
+          <td>{{ t.total_inscritos || 0 }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

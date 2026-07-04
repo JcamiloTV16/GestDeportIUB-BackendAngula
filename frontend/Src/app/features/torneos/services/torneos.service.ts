@@ -9,9 +9,21 @@ export class TorneosService {
     return this.api.request(`${API}/torneos/`);
   }
 
+  obtenerHistorialTorneos() {
+    return this.api.request(`${API}/torneos/historial`);
+  }
+
   crearTorneo(datos: Record<string, unknown>) {
     return this.api.request(`${API}/torneos/`, {
       method: 'POST',
+      headers: this.api.jsonHeaders(),
+      body: JSON.stringify(datos)
+    });
+  }
+
+  actualizarTorneo(id: number, datos: Record<string, unknown>) {
+    return this.api.request(`${API}/torneos/${id}`, {
+      method: 'PUT',
       headers: this.api.jsonHeaders(),
       body: JSON.stringify(datos)
     });
@@ -38,6 +50,10 @@ export class TorneosService {
       headers: this.api.jsonHeaders(),
       body: JSON.stringify(datos)
     });
+  }
+
+  obtenerInscritosPorTorneo(torneoId: number) {
+    return this.api.request(`${API}/inscripciones-torneo/torneo/${torneoId}`);
   }
 
   obtenerMisTorneos(estudianteId: number) {

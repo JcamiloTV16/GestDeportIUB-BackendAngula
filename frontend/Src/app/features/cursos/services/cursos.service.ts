@@ -25,6 +25,22 @@ export class CursosService {
     return this.api.request(`${API}/inscripciones/horario/${horarioId}`, { headers: this.api.authHeaders() });
   }
 
+  crearHorario(horario: Record<string, unknown>) {
+    return this.api.request(`${API}/horarios/`, {
+      method: 'POST',
+      headers: this.api.jsonHeaders(),
+      body: JSON.stringify(horario)
+    });
+  }
+
+  actualizarHorario(id: number, horario: Record<string, unknown>) {
+    return this.api.request(`${API}/horarios/${id}`, {
+      method: 'PUT',
+      headers: this.api.jsonHeaders(),
+      body: JSON.stringify(horario)
+    });
+  }
+
   eliminarHorario(id: number) {
     return this.api.request(`${API}/horarios/${id}`, {
       method: 'DELETE',

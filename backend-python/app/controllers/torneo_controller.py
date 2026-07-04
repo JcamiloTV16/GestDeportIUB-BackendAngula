@@ -9,6 +9,30 @@ class TorneoController(BaseController):
     def __init__(self):
         super().__init__("torneos")
 
+    def get_historial(self):
+        conn = None
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT t.*, d.nombre as deporte_nombre, u.nombre as creador_nombre,
+                       (SELECT COUNT(*) FROM inscripciones_torneo it
+                        WHERE it.torneo_id = t.id AND it.estado = TRUE) as total_inscritos
+                FROM torneos t
+                LEFT JOIN deportes d ON t.deporte_id = d.id
+                LEFT JOIN usuarios u ON t.creado_por = u.id
+                WHERE t.estado = TRUE AND t.estado_torneo = 'Finalizado'
+                ORDER BY t.fecha_inicio DESC
+            """)
+            result = cursor.fetchall()
+            colnames = [desc[0] for desc in cursor.description]
+            payload = [dict(zip(colnames, row)) for row in result]
+            return {"resultado": jsonable_encoder(payload)}
+        except Exception as err:
+            raise HTTPException(status_code=500, detail=str(err))
+        finally:
+            if conn: conn.close()
+
     def get_all(self):
         conn = None
         try:
@@ -21,7 +45,7 @@ class TorneoController(BaseController):
                 FROM torneos t
                 LEFT JOIN deportes d ON t.deporte_id = d.id
                 LEFT JOIN usuarios u ON t.creado_por = u.id
-                WHERE t.estado = TRUE
+                WHERE t.estado = TRUE AND t.estado_torneo != 'Finalizado'
                 ORDER BY t.fecha_inicio ASC
             """)
             result = cursor.fetchall()
