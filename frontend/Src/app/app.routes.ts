@@ -25,7 +25,7 @@ export const routes: Routes = [
   {
     path: 'admin',
     canActivate: [authGuard],
-    loadComponent: () => import('./features/admin/pages/admin-page/admin-page').then((m) => m.AdminPage)
+    loadComponent: () => import('./features/admin/pages/admin-page/admin-page').then((m) => m.AdminPageComponent)
   },
   {
     path: 'entrenador',

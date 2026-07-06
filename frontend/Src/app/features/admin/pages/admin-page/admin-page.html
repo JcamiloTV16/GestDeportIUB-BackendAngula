@@ -32,46 +32,13 @@
   <!-- ============================================================ -->
   <div *ngIf="vistaActual === 'dashboard'" class="card border-0 shadow-sm p-4">
     <h4 class="fw-bold mb-4">Dashboard Informativo</h4>
-    <div *ngIf="loadingStats" class="text-center py-4">
-      <div class="spinner-border text-primary" role="status"></div>
-    </div>
-    <div *ngIf="!loadingStats" class="row g-4">
-      <div class="col-md-4 col-lg-2">
-        <div class="card bg-primary text-white text-center p-3">
-          <h3 class="fw-bold mb-1">{{ stats.total_usuarios || 0 }}</h3>
-          <small>Usuarios</small>
-        </div>
-      </div>
-      <div class="col-md-4 col-lg-2">
-        <div class="card bg-success text-white text-center p-3">
-          <h3 class="fw-bold mb-1">{{ stats.total_deportes || 0 }}</h3>
-          <small>Deportes</small>
-        </div>
-      </div>
-      <div class="col-md-4 col-lg-2">
-        <div class="card bg-info text-white text-center p-3">
-          <h3 class="fw-bold mb-1">{{ stats.total_cursos || 0 }}</h3>
-          <small>Cursos</small>
-        </div>
-      </div>
-      <div class="col-md-4 col-lg-2">
-        <div class="card bg-warning text-dark text-center p-3">
-          <h3 class="fw-bold mb-1">{{ stats.total_torneos || 0 }}</h3>
-          <small>Torneos</small>
-        </div>
-      </div>
-      <div class="col-md-4 col-lg-2">
-        <div class="card bg-secondary text-white text-center p-3">
-          <h3 class="fw-bold mb-1">{{ stats.total_entrenadores || 0 }}</h3>
-          <small>Entrenadores</small>
-        </div>
-      </div>
-      <div class="col-md-4 col-lg-2">
-        <div class="card bg-dark text-white text-center p-3">
-          <h3 class="fw-bold mb-1">{{ stats.total_inscripciones || 0 }}</h3>
-          <small>Inscripciones</small>
-        </div>
-      </div>
+    <div class="ratio ratio-16x9" style="min-height: 600px;">
+      <iframe title="DASHBOARD DEPOR-UNIBARRANQUILLA" 
+              [src]="powerbiUrl" 
+              frameborder="0" 
+              allowFullScreen="true"
+              style="width: 100%; height: 100%;">
+      </iframe>
     </div>
   </div>
 

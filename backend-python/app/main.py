@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.config.db_config import get_db_connection
 from app.routes.user_routes import router as user_router
 from app.routes.role_routes import router as role_router
 from app.routes.modulo_routes import router as modulo_router
