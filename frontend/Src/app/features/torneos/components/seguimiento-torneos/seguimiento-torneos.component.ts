@@ -38,7 +38,7 @@ export class SeguimientoTorneosComponent implements OnInit {
     this.statForm = this.fb.group({
       usuario_id: [null, Validators.required],
       tipo_estadistica: ['', Validators.required],
-      valor_json_texto: ['{}', Validators.required]
+      cantidad: [1]
     });
   }
 
@@ -46,8 +46,9 @@ export class SeguimientoTorneosComponent implements OnInit {
     this.loadingTorneos = true;
     try {
       const res = await this.torneosService.obtenerTorneos();
-      // Filtrar torneos que están En Curso
-      this.torneosActivos = (res.resultado || []).filter((t: any) => t.estado_torneo === 'En Curso' || t.estado_torneo === 'Inscripciones Abiertas');
+      this.torneosActivos = (res.resultado || []).filter(
+        (t: any) => t.estado_torneo === 'En Curso' || t.estado_torneo === 'Inscripciones Abiertas'
+      );
     } catch (e) {
       console.error(e);
     } finally {
@@ -57,7 +58,13 @@ export class SeguimientoTorneosComponent implements OnInit {
 
   async seleccionarTorneo(torneo: any) {
     this.torneoSeleccionado = torneo;
-    this.statForm.reset({ valor_json_texto: '{}' });
+    this.statForm.reset({ cantidad: 1 });
+    // Set default tipo_estadistica by sport
+    const deporte = torneo.deporte_nombre;
+    if (deporte === 'Fútbol') this.statForm.patchValue({ tipo_estadistica: 'Goles' });
+    else if (deporte === 'Baloncesto') this.statForm.patchValue({ tipo_estadistica: 'Puntos' });
+    else if (deporte === 'Atletismo') this.statForm.patchValue({ tipo_estadistica: 'Tiempo Final' });
+    else if (deporte === 'Ajedrez') this.statForm.patchValue({ tipo_estadistica: 'Victoria' });
     await this.cargarDetalleTorneo();
   }
 
@@ -83,27 +90,30 @@ export class SeguimientoTorneosComponent implements OnInit {
       this.statForm.markAllAsTouched();
       return;
     }
-    
-    let valor_json = null;
-    try {
-      const texto = this.statForm.value.valor_json_texto;
-      valor_json = JSON.parse(texto);
-    } catch (e) {
-      this.mostrarError('El valor JSON ingresado no es válido.');
-      return;
+
+    const { usuario_id, tipo_estadistica, cantidad } = this.statForm.value;
+    const deporte = this.torneoSeleccionado.deporte_nombre;
+
+    // Build valor_json based on sport type
+    let valor_json: Record<string, unknown> = { cantidad };
+    if (deporte === 'Atletismo') {
+      valor_json = { segundos: cantidad };
+    } else if (deporte === 'Ajedrez') {
+      const pts: Record<string, number> = { 'Victoria': 1, 'Empate': 0.5, 'Derrota': 0 };
+      valor_json = { puntos: pts[tipo_estadistica] ?? 0 };
     }
 
     const payload = {
       torneo_id: this.torneoSeleccionado.id,
-      usuario_id: this.statForm.value.usuario_id,
-      tipo_estadistica: this.statForm.value.tipo_estadistica,
+      usuario_id,
+      tipo_estadistica,
       valor_json
     };
 
     try {
       await this.estadisticasService.crearEstadistica(payload);
       this.mostrarExito('Estadística registrada correctamente.');
-      this.statForm.reset({ valor_json_texto: '{}' });
+      this.statForm.patchValue({ cantidad: 1 });
       await this.cargarDetalleTorneo();
     } catch (e: any) {
       this.mostrarError(e.message || 'Error al registrar estadística.');
@@ -133,18 +143,24 @@ export class SeguimientoTorneosComponent implements OnInit {
       if (e.tipo_estadistica === 'Puntos') stats[nombre].puntos += (e.valor_json?.cantidad || 0);
       if (e.tipo_estadistica === 'Rebotes') stats[nombre].rebotes += (e.valor_json?.cantidad || 0);
     });
-    return Object.keys(stats).map(k => ({ jugador: k, puntos: stats[k].puntos, rebotes: stats[k].rebotes })).sort((a, b) => b.puntos - a.puntos);
+    return Object.keys(stats)
+      .map(k => ({ jugador: k, puntos: stats[k].puntos, rebotes: stats[k].rebotes }))
+      .sort((a, b) => b.puntos - a.puntos);
   }
 
   get tablaTiemposAtletismo() {
     if (this.torneoSeleccionado?.deporte_nombre !== 'Atletismo') return [];
     const tiempos: Record<string, number> = {};
-    this.estadisticas.filter(e => e.tipo_estadistica.includes('Tiempo')).forEach(e => {
-      const nombre = e.valor_json?.jugador || e.usuario_nombre;
-      const t = e.valor_json?.segundos || 999;
-      if (!tiempos[nombre] || t < tiempos[nombre]) tiempos[nombre] = t;
-    });
-    return Object.keys(tiempos).map(k => ({ atleta: k, tiempo: tiempos[k] })).sort((a, b) => a.tiempo - b.tiempo);
+    this.estadisticas
+      .filter(e => e.tipo_estadistica === 'Tiempo Final' || e.tipo_estadistica === 'Tiempo Parcial')
+      .forEach(e => {
+        const nombre = e.valor_json?.jugador || e.usuario_nombre;
+        const t = e.valor_json?.segundos || 999;
+        if (!tiempos[nombre] || t < tiempos[nombre]) tiempos[nombre] = t;
+      });
+    return Object.keys(tiempos)
+      .map(k => ({ atleta: k, tiempo: tiempos[k] }))
+      .sort((a, b) => a.tiempo - b.tiempo);
   }
 
   get tablaRankingAjedrez() {
@@ -154,7 +170,7 @@ export class SeguimientoTorneosComponent implements OnInit {
       const nombre = e.valor_json?.jugador || e.usuario_nombre;
       if (!stats[nombre]) stats[nombre] = { puntos: 0, victorias: 0, derrotas: 0, empates: 0 };
       if (e.tipo_estadistica === 'Victoria') {
-        stats[nombre].puntos += (e.valor_json?.puntos || 1);
+        stats[nombre].puntos += 1;
         stats[nombre].victorias += 1;
       } else if (e.tipo_estadistica === 'Derrota') {
         stats[nombre].derrotas += 1;
@@ -167,6 +183,17 @@ export class SeguimientoTorneosComponent implements OnInit {
       jugador: k, puntos: stats[k].puntos, victorias: stats[k].victorias,
       empates: stats[k].empates, derrotas: stats[k].derrotas
     })).sort((a, b) => b.puntos - a.puntos);
+  }
+
+  get tablaGeneral() {
+    const stats: Record<string, number> = {};
+    this.estadisticas.forEach(e => {
+      const nombre = e.usuario_nombre;
+      stats[nombre] = (stats[nombre] || 0) + (e.valor_json?.cantidad || 1);
+    });
+    return Object.keys(stats)
+      .map(k => ({ jugador: k, total: stats[k] }))
+      .sort((a, b) => b.total - a.total);
   }
 
   mostrarExito(msg: string) {

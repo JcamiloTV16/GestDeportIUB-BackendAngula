@@ -4,10 +4,12 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { UsuariosService } from '../../services/usuarios.service';
 import { AdminService } from '../../../admin/services/admin.service';
 
+import { DataTableDirective } from '../../../../core/directives/data-table.directive';
+
 @Component({
   selector: 'app-usuarios-admin',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, DataTableDirective],
   templateUrl: './usuarios-admin.component.html'
 })
 export class UsuariosAdminComponent implements OnInit {
@@ -17,6 +19,10 @@ export class UsuariosAdminComponent implements OnInit {
   mostrarModalUsuario = false;
   editandoUsuarioId: number | null = null;
   roles: any[] = [];
+  programas: any[] = [];
+  facultades: any[] = [];
+  tiposDocumento: any[] = [];
+  nivelesEducativos: any[] = [];
 
   mensajeExito = '';
   mensajeError = '';
@@ -49,17 +55,31 @@ export class UsuariosAdminComponent implements OnInit {
   async cargarUsuarios() {
     this.loadingUsuarios = true;
     try {
-      const [usersRes, rolesRes] = await Promise.all([
+      const [usersRes, rolesRes, programasRes, facultadesRes, tiposDocRes, nivelesRes] = await Promise.all([
         this.usuariosService.obtenerUsuarios(),
-        this.adminService.obtenerRoles()
+        this.adminService.obtenerRoles(),
+        this.usuariosService.obtenerProgramas(),
+        this.usuariosService.obtenerFacultades(),
+        this.usuariosService.obtenerTiposDocumento(),
+        this.usuariosService.obtenerNivelesEducativos()
       ]);
       this.usuarios = usersRes.resultado || [];
       this.roles = rolesRes.resultado || [];
+      this.programas = programasRes || [];
+      this.facultades = facultadesRes || [];
+      this.tiposDocumento = tiposDocRes || [];
+      this.nivelesEducativos = nivelesRes || [];
     } catch (e) {
       console.error(e);
     } finally {
       this.loadingUsuarios = false;
     }
+  }
+
+  get programasFiltrados(): any[] {
+    const facultadId = this.usuarioForm?.get('facultad_id')?.value;
+    if (!facultadId) return this.programas;
+    return this.programas.filter((p: any) => p.facultad_id === facultadId);
   }
 
   abrirModalUsuario(usuario?: any) {
@@ -149,3 +169,4 @@ export class UsuariosAdminComponent implements OnInit {
     this.mensajeError = '';
   }
 }
+

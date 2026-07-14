@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { API, ApiService } from '../../../core/services/api.service';
+import { API, NODE_API, ApiService } from '../../../core/services/api.service';
 
 @Injectable({ providedIn: 'root' })
 export class UsuariosService {
@@ -42,4 +42,22 @@ export class UsuariosService {
       headers: this.api.authHeaders()
     });
   }
+
+  // ─── Datos auxiliares desde la API de Node ───
+  obtenerProgramas() {
+    return this.api.request(`${NODE_API}/programas`);
+  }
+
+  obtenerFacultades() {
+    return this.api.request(`${NODE_API}/facultades`);
+  }
+
+  obtenerTiposDocumento() {
+    return this.api.request(`${NODE_API}/tipos-documento`);
+  }
+
+  obtenerNivelesEducativos() {
+    return this.api.request(`${NODE_API}/niveles-educativos`);
+  }
 }
+

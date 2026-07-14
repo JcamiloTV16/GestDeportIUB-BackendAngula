@@ -26,7 +26,7 @@
     </div>
 
     <div class="table-responsive" *ngIf="!loadingTorneos && torneos.length > 0">
-      <table class="table table-hover align-middle">
+      <table class="table table-hover align-middle" [appDataTable]="torneos">
         <thead class="table-light">
           <tr>
             <th>ID</th>
@@ -55,8 +55,16 @@
               </span>
             </td>
             <td class="text-center">
-              <button class="btn btn-sm btn-outline-primary me-1" (click)="abrirModalTorneo(t)">
-                <i class="bi bi-pencil"></i> Editar
+              <button class="btn btn-sm btn-outline-primary me-1" (click)="abrirModalTorneo(t)" title="Editar">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button 
+                class="btn btn-sm btn-outline-success"
+                [disabled]="t.estado_torneo === 'Finalizado'"
+                (click)="avanzarEstado(t)"
+                [title]="'Avanzar a: ' + getSiguienteEstado(t.estado_torneo)">
+                <i class="bi bi-arrow-right-circle me-1"></i>
+                {{ getSiguienteEstado(t.estado_torneo) || 'Finalizado' }}
               </button>
             </td>
           </tr>
@@ -93,8 +101,6 @@
                 <label class="form-label">Descripción</label>
                 <textarea class="form-control" rows="2" formControlName="descripcion"></textarea>
               </div>
-              
-              <!-- NUEVOS CAMPOS -->
               <div class="col-md-6">
                 <label class="form-label">Población Objetivo</label>
                 <select class="form-select" formControlName="poblacion_objetivo">
@@ -104,12 +110,15 @@
                   <option value="Egresados">Solo Egresados</option>
                 </select>
               </div>
-              <div class="col-md-6">
-                <label class="form-label">Reglas Específicas (JSON)</label>
-                <textarea class="form-control" rows="2" formControlName="reglas_json_texto" placeholder='{"goles": 2}'></textarea>
-                <small class="text-muted">Escribe un objeto JSON válido.</small>
+              <div class="col-md-6" *ngIf="editandoTorneoId">
+                <label class="form-label">Estado del Torneo</label>
+                <select class="form-select" formControlName="estado_torneo">
+                  <option value="Próximamente">Próximamente</option>
+                  <option value="Inscripciones Abiertas">Inscripciones Abiertas</option>
+                  <option value="En Curso">En Curso</option>
+                  <option value="Finalizado">Finalizado</option>
+                </select>
               </div>
-
               <div class="col-md-4">
                 <label class="form-label">Fecha Inicio *</label>
                 <input type="date" class="form-control" formControlName="fecha_inicio"

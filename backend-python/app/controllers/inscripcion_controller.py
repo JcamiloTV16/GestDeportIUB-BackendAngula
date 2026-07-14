@@ -10,7 +10,13 @@ class InscripcionController(BaseController):
             conn = get_db_connection()
             cursor = conn.cursor()
             query = """
-                SELECT DISTINCT u.id, u.nombre, u.email as correo, i.create_ as fecha_inscripcion, i.estado
+                SELECT DISTINCT 
+                    u.id, 
+                    u.numero_documento as estudiante_documento,
+                    u.nombre as estudiante_nombre, 
+                    u.email as estudiante_email, 
+                    i.create_ as fecha_inscripcion, 
+                    CASE WHEN i.estado = TRUE THEN 'Aprobada' ELSE 'Rechazada' END as estado_nombre
                 FROM inscripciones i
                 JOIN usuarios u ON i.estudiante_id = u.id
                 WHERE i.horario_id = %s

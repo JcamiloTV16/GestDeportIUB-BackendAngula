@@ -1,6 +1,148 @@
 <div class="container py-4">
-  <h2 class="fw-bold mb-4">Auditorias</h2>
-  <div class="alert alert-info">
-    Módulo de auditorias en construcción.
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold m-0"><i class="bi bi-archive text-warning me-2"></i>Registros Inactivos</h2>
+    <button class="btn btn-outline-secondary btn-sm" (click)="cargarDatos()" [disabled]="loading">
+      <i class="bi bi-arrow-clockwise"></i> Actualizar
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="text-muted mt-2">Cargando registros inactivos...</p>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger shadow-sm border-0">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ error }}
+  </div>
+
+  <div *ngIf="mensajeExito" class="alert alert-success shadow-sm border-0">
+    <i class="bi bi-check-circle-fill me-2"></i> {{ mensajeExito }}
+  </div>
+
+  <div class="card border-0 shadow-sm" *ngIf="!loading && !error">
+    <div class="card-header bg-white pt-3 pb-0 border-bottom-0">
+      <ul class="nav nav-tabs border-bottom">
+        <li class="nav-item">
+          <a class="nav-link cursor-pointer" [class.active]="tabActiva === 'usuarios'" (click)="tabActiva = 'usuarios'">
+            Usuarios <span class="badge bg-secondary ms-1">{{ usuariosInactivos.length }}</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link cursor-pointer" [class.active]="tabActiva === 'deportes'" (click)="tabActiva = 'deportes'">
+            Deportes <span class="badge bg-secondary ms-1">{{ deportesInactivos.length }}</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link cursor-pointer" [class.active]="tabActiva === 'cursos'" (click)="tabActiva = 'cursos'">
+            Cursos <span class="badge bg-secondary ms-1">{{ cursosInactivos.length }}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="card-body p-4">
+
+      <!-- USUARIOS -->
+      <div *ngIf="tabActiva === 'usuarios'">
+        <div *ngIf="usuariosInactivos.length === 0" class="text-center py-4 text-muted">
+          <i class="bi bi-inbox fs-1 mb-3 d-block"></i>
+          <p>No hay usuarios inactivos.</p>
+        </div>
+        <div class="table-responsive" *ngIf="usuariosInactivos.length > 0">
+          <table class="table table-hover align-middle mb-0" [appDataTable]="usuariosInactivos">
+            <thead class="table-light">
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Rol</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let u of usuariosInactivos">
+                <td>{{ u.id }}</td>
+                <td>{{ u.nombre }}</td>
+                <td>{{ u.email }}</td>
+                <td><span class="badge bg-info text-dark">{{ u.nombre_rol || 'Usuario' }}</span></td>
+                <td>
+                  <button class="btn btn-sm btn-success" (click)="reactivar('usuario', u.id)">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reactivar
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- DEPORTES -->
+      <div *ngIf="tabActiva === 'deportes'">
+        <div *ngIf="deportesInactivos.length === 0" class="text-center py-4 text-muted">
+          <i class="bi bi-inbox fs-1 mb-3 d-block"></i>
+          <p>No hay deportes inactivos.</p>
+        </div>
+        <div class="table-responsive" *ngIf="deportesInactivos.length > 0">
+          <table class="table table-hover align-middle mb-0" [appDataTable]="deportesInactivos">
+            <thead class="table-light">
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let d of deportesInactivos">
+                <td>{{ d.id }}</td>
+                <td>{{ d.nombre }}</td>
+                <td class="text-truncate" style="max-width: 200px;">{{ d.descripcion }}</td>
+                <td>
+                  <button class="btn btn-sm btn-success" (click)="reactivar('deporte', d.id)">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reactivar
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CURSOS -->
+      <div *ngIf="tabActiva === 'cursos'">
+        <div *ngIf="cursosInactivos.length === 0" class="text-center py-4 text-muted">
+          <i class="bi bi-inbox fs-1 mb-3 d-block"></i>
+          <p>No hay cursos/horarios inactivos.</p>
+        </div>
+        <div class="table-responsive" *ngIf="cursosInactivos.length > 0">
+          <table class="table table-hover align-middle mb-0" [appDataTable]="cursosInactivos">
+            <thead class="table-light">
+              <tr>
+                <th>ID</th>
+                <th>Deporte</th>
+                <th>Día</th>
+                <th>Hora</th>
+                <th>Lugar</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let c of cursosInactivos">
+                <td>{{ c.id }}</td>
+                <td><span class="badge bg-primary">{{ c.deporte_nombre }}</span></td>
+                <td>{{ c.dia_semana }}</td>
+                <td>{{ c.hora_inicio }} - {{ c.hora_fin }}</td>
+                <td>{{ c.lugar }}</td>
+                <td>
+                  <button class="btn btn-sm btn-success" (click)="reactivar('curso', c.id)">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reactivar
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
   </div>
 </div>

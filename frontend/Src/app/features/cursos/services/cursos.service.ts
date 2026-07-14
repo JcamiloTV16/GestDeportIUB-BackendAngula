@@ -25,6 +25,10 @@ export class CursosService {
     return this.api.request(`${API}/inscripciones/horario/${horarioId}`, { headers: this.api.authHeaders() });
   }
 
+  obtenerInscritosPorEstudiante(estudianteId: number) {
+    return this.api.request(`${API}/inscripciones/estudiante/${estudianteId}/deportes`, { headers: this.api.authHeaders() });
+  }
+
   crearHorario(horario: Record<string, unknown>) {
     return this.api.request(`${API}/horarios/`, {
       method: 'POST',

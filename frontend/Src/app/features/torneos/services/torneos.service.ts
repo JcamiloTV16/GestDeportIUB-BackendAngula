@@ -68,4 +68,12 @@ export class TorneosService {
       headers: this.api.authHeaders()
     });
   }
+
+  actualizarEstadoInscripcion(id: number, estado_inscripcion: string) {
+    return this.api.request(`${API}/inscripciones-torneo/${id}/estado`, {
+      method: 'PATCH',
+      headers: this.api.jsonHeaders(),
+      body: JSON.stringify({ estado_inscripcion })
+    });
+  }
 }

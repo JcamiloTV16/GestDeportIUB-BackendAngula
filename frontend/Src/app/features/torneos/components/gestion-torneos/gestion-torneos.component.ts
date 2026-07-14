@@ -4,10 +4,14 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { TorneosService } from '../../services/torneos.service';
 import { DeportesService } from '../../../deportes/services/deportes.service';
 
+const ESTADOS = ['Próximamente', 'Inscripciones Abiertas', 'En Curso', 'Finalizado'];
+
+import { DataTableDirective } from '../../../../core/directives/data-table.directive';
+
 @Component({
   selector: 'app-gestion-torneos',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, DataTableDirective],
   templateUrl: './gestion-torneos.component.html'
 })
 export class GestionTorneosComponent implements OnInit {
@@ -41,7 +45,7 @@ export class GestionTorneosComponent implements OnInit {
       lugar: [''],
       deporte_id: [null],
       poblacion_objetivo: ['Todos'],
-      reglas_json_texto: ['{}']
+      estado_torneo: ['Próximamente']
     });
   }
 
@@ -73,11 +77,11 @@ export class GestionTorneosComponent implements OnInit {
         lugar: torneo.lugar,
         deporte_id: torneo.deporte_id,
         poblacion_objetivo: torneo.poblacion_objetivo || 'Todos',
-        reglas_json_texto: torneo.reglas_json ? JSON.stringify(torneo.reglas_json, null, 2) : '{}'
+        estado_torneo: torneo.estado_torneo || 'Próximamente'
       });
     } else {
       this.editandoTorneoId = null;
-      this.torneoForm.reset({ poblacion_objetivo: 'Todos', reglas_json_texto: '{}' });
+      this.torneoForm.reset({ poblacion_objetivo: 'Todos', estado_torneo: 'Próximamente' });
     }
     this.mostrarModalTorneo = true;
   }
@@ -85,7 +89,7 @@ export class GestionTorneosComponent implements OnInit {
   cerrarModalTorneo() {
     this.mostrarModalTorneo = false;
     this.editandoTorneoId = null;
-    this.torneoForm.reset({ poblacion_objetivo: 'Todos', reglas_json_texto: '{}' });
+    this.torneoForm.reset({ poblacion_objetivo: 'Todos', estado_torneo: 'Próximamente' });
   }
 
   async guardarTorneo() {
@@ -93,23 +97,11 @@ export class GestionTorneosComponent implements OnInit {
       this.torneoForm.markAllAsTouched();
       return;
     }
-    
-    let reglas_json = null;
-    try {
-      const texto = this.torneoForm.value.reglas_json_texto;
-      if (texto && texto.trim() !== '') {
-        reglas_json = JSON.parse(texto);
-      }
-    } catch (e) {
-      this.mostrarError('El formato de las Reglas (JSON) es inválido.');
-      return;
-    }
 
     const payload = {
       ...this.torneoForm.value,
-      reglas_json
+      reglas_json: {}
     };
-    delete payload.reglas_json_texto;
 
     try {
       if (this.editandoTorneoId) {
@@ -126,13 +118,22 @@ export class GestionTorneosComponent implements OnInit {
     }
   }
 
-  async eliminarTorneo(id: number) {
-    if (!confirm('¿Está seguro de eliminar este torneo? (Esta acción podría fallar si hay inscripciones vinculadas)')) return;
+  getSiguienteEstado(estadoActual: string): string {
+    const idx = ESTADOS.indexOf(estadoActual);
+    if (idx === -1 || idx >= ESTADOS.length - 1) return '';
+    return ESTADOS[idx + 1];
+  }
+
+  async avanzarEstado(torneo: any) {
+    const siguiente = this.getSiguienteEstado(torneo.estado_torneo);
+    if (!siguiente) return;
+    if (!confirm(`¿Confirmas cambiar el estado de "${torneo.nombre}" a "${siguiente}"?`)) return;
     try {
-      alert('Implementación pendiente en torneosService si no existe (usualmente no se eliminan, se cambian de estado).');
+      await this.torneosService.cambiarEstadoTorneo(torneo.id, siguiente);
+      this.mostrarExito(`Estado del torneo actualizado a "${siguiente}"`);
       await this.cargarDatos();
     } catch (e: any) {
-      this.mostrarError(e.message || 'Error al eliminar torneo');
+      this.mostrarError(e.message || 'Error al cambiar estado del torneo');
     }
   }
 

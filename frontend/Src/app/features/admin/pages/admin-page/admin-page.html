@@ -7,7 +7,7 @@
   <!-- Tabs de navegación -->
   <div class="card border-0 shadow-sm mb-4">
     <div class="card-body p-2">
-      <ul class="nav nav-pills nav-justified">
+      <ul class="nav nav-pills nav-justified flex-wrap">
         <li class="nav-item">
           <button class="nav-link" [class.active]="vistaActual === 'dashboard'" (click)="cambiarVista('dashboard')">Dashboard</button>
         </li>
@@ -22,6 +22,9 @@
         </li>
         <li class="nav-item">
           <button class="nav-link" [class.active]="vistaActual === 'torneos'" (click)="cambiarVista('torneos')">Torneos</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" [class.active]="vistaActual === 'auditorias'" (click)="cambiarVista('auditorias')">Auditorías</button>
         </li>
       </ul>
     </div>
@@ -50,5 +53,6 @@
   <app-deportes-admin *ngIf="vistaActual === 'deportes'"></app-deportes-admin>
   <app-cursos-admin *ngIf="vistaActual === 'cursos'"></app-cursos-admin>
   <app-torneos-admin *ngIf="vistaActual === 'torneos'"></app-torneos-admin>
+  <app-auditorias-page *ngIf="vistaActual === 'auditorias'"></app-auditorias-page>
 
 </div>

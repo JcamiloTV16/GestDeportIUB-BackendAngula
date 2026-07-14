@@ -1,0 +1,73 @@
+<div *ngIf="!viendoEstudiantes">
+  <h4 class="fw-bold mb-3">Mis Grupos Asignados</h4>
+  
+  <div *ngIf="loading" class="text-center py-4">
+    <div class="spinner-border text-primary" role="status"></div>
+  </div>
+
+  <div *ngIf="!loading && cursos.length === 0" class="alert alert-info">
+    No tienes grupos asignados en este momento.
+  </div>
+
+  <div class="row g-3" *ngIf="!loading && cursos.length > 0">
+    <div class="col-md-4" *ngFor="let c of cursos">
+      <div class="card h-100 border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title text-primary fw-bold">{{ c.deporte_nombre }}</h5>
+          <p class="card-text mb-1"><strong>Día:</strong> {{ c.dia_semana }}</p>
+          <p class="card-text mb-1"><strong>Horario:</strong> {{ c.hora_inicio }} - {{ c.hora_fin }}</p>
+          <p class="card-text mb-1"><strong>Lugar:</strong> {{ c.lugar }}</p>
+          <p class="card-text mb-3"><strong>Cupo:</strong> {{ c.cupo }}</p>
+          <button class="btn btn-outline-info w-100" (click)="verEstudiantes(c)">
+            <i class="bi bi-people"></i> Ver Estudiantes
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="viendoEstudiantes">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold m-0">Estudiantes - {{ cursoSeleccionado?.deporte_nombre }}</h4>
+    <button class="btn btn-secondary btn-sm" (click)="volverACursos()">
+      <i class="bi bi-arrow-left"></i> Volver a Mis Grupos
+    </button>
+  </div>
+
+  <div class="card border-0 shadow-sm p-3">
+    <div *ngIf="estudiantesCurso.length === 0" class="alert alert-info mb-0">
+      No hay estudiantes inscritos en este grupo.
+    </div>
+
+    <div class="table-responsive" *ngIf="estudiantesCurso.length > 0">
+      <table class="table table-hover align-middle mb-0" [appDataTable]="estudiantesCurso">
+        <thead class="table-light">
+          <tr>
+            <th>Documento</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Estado Inscripción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let est of estudiantesCurso">
+            <td>{{ est.estudiante_documento }}</td>
+            <td>{{ est.estudiante_nombre }}</td>
+            <td>{{ est.estudiante_email }}</td>
+            <td>
+              <span class="badge" 
+                    [ngClass]="{
+                      'bg-warning text-dark': est.estado_nombre === 'Pendiente',
+                      'bg-success': est.estado_nombre === 'Aprobada',
+                      'bg-danger': est.estado_nombre === 'Rechazada'
+                    }">
+                {{ est.estado_nombre }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

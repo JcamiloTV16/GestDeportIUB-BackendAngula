@@ -1,6 +1,6 @@
 <div class="container py-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-bold m-0">Panel de Estudiante</h2>
+    <h2 class="fw-bold m-0">Panel de Deportista</h2>
   </div>
 
   <div class="card border-0 shadow-sm mb-4">
@@ -21,14 +21,13 @@
 
   <div class="card border-0 shadow-sm p-4">
     <div *ngIf="vistaActual === 'deportes'">
-      <h4>Mis Deportes</h4>
-      <p class="text-muted">Tus deportes inscritos aparecerán aquí.</p>
+      <app-mis-cursos></app-mis-cursos>
     </div>
     <div *ngIf="vistaActual === 'inscripcion'">
       <p>Realiza nuevas inscripciones.</p>
     </div>
     <div *ngIf="vistaActual === 'torneos'">
-      <p>Próximos torneos.</p>
+      <app-torneos-estudiante></app-torneos-estudiante>
     </div>
   </div>
 </div>

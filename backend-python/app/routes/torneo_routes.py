@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from app.controllers.torneo_controller import torneo_controller
 from app.models.torneo import Torneo, TorneoCreate
+import json
 
 router = APIRouter()
 
@@ -22,15 +23,21 @@ async def get_torneo(id: int):
 
 @router.post("/torneos/", response_model=Torneo, tags=["Torneos"])
 async def create_torneo(torneo: TorneoCreate):
-    return torneo_controller.create(torneo.dict(exclude_unset=True))
+    data = torneo.dict(exclude_unset=True)
+    if "reglas_json" in data and isinstance(data["reglas_json"], dict):
+        data["reglas_json"] = json.dumps(data["reglas_json"])
+    return torneo_controller.create(data)
 
 @router.patch("/torneos/{id}/estado", tags=["Torneos"])
 async def cambiar_estado_torneo(id: int, data: CambiarEstadoTorneo):
     return torneo_controller.cambiar_estado(id, data.estado_torneo)
 
 @router.put("/torneos/{id}", tags=["Torneos"])
-async def update_torneo(id: int, torneo: Torneo):
-    return torneo_controller.update(id, torneo.dict(exclude_unset=True))
+async def update_torneo(id: int, torneo: TorneoCreate):
+    data = torneo.dict(exclude_unset=True)
+    if "reglas_json" in data and isinstance(data["reglas_json"], dict):
+        data["reglas_json"] = json.dumps(data["reglas_json"])
+    return torneo_controller.update(id, data)
 
 @router.delete("/torneos/{id}", tags=["Torneos"])
 async def delete_torneo(id: int):

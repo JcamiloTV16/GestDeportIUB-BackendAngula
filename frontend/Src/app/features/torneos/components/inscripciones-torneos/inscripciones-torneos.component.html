@@ -1,0 +1,103 @@
+<div>
+  <!-- Alertas de feedback -->
+  <div *ngIf="mensajeExito" class="alert alert-success alert-dismissible fade show">
+    {{ mensajeExito }}
+    <button type="button" class="btn-close" (click)="mensajeExito = ''"></button>
+  </div>
+  <div *ngIf="mensajeError" class="alert alert-danger alert-dismissible fade show">
+    {{ mensajeError }}
+    <button type="button" class="btn-close" (click)="mensajeError = ''"></button>
+  </div>
+
+  <div class="card border-0 shadow-sm p-4">
+    <h4 class="fw-bold mb-3"><i class="bi bi-person-check me-2"></i>Gestión de Inscripciones a Torneos</h4>
+
+    <!-- Selector de Torneo -->
+    <div class="mb-4">
+      <label class="form-label fw-semibold">Seleccionar Torneo</label>
+      <select class="form-select" [(ngModel)]="torneoSeleccionadoId" (ngModelChange)="onTorneoChange()">
+        <option [ngValue]="null">-- Selecciona un torneo --</option>
+        <option *ngFor="let t of torneos" [ngValue]="t.id">
+          {{ t.nombre }} ({{ t.estado_torneo }})
+        </option>
+      </select>
+    </div>
+
+    <div *ngIf="loadingTorneos || loadingInscripciones" class="text-center py-4">
+      <div class="spinner-border text-primary" role="status"></div>
+    </div>
+
+    <div *ngIf="torneoSeleccionadoId && !loadingInscripciones && inscripciones.length === 0" class="alert alert-info">
+      No hay inscripciones registradas para este torneo.
+    </div>
+
+    <!-- Sección Pendientes -->
+    <div *ngIf="pendientes.length > 0" class="mb-4">
+      <h5 class="fw-bold text-warning mb-3">
+        <i class="bi bi-clock-fill me-1"></i> Pendientes de Aprobación ({{ pendientes.length }})
+      </h5>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle" [appDataTable]="pendientes">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Estudiante</th>
+              <th>Correo</th>
+              <th>Fecha Inscripción</th>
+              <th>Estado</th>
+              <th class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let ins of pendientes; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td class="fw-semibold">{{ ins.estudiante_nombre }}</td>
+              <td>{{ ins.estudiante_correo }}</td>
+              <td>{{ ins.fecha_inscripcion | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td><span class="badge" [ngClass]="getBadgeClass(ins.estado_inscripcion)">{{ ins.estado_inscripcion }}</span></td>
+              <td class="text-center">
+                <div class="d-flex justify-content-center gap-2">
+                  <button class="btn btn-sm btn-success text-nowrap" (click)="aceptarInscripcion(ins)">
+                    <i class="bi bi-check-circle me-1"></i> Aceptar
+                  </button>
+                  <button class="btn btn-sm btn-danger text-nowrap" (click)="rechazarInscripcion(ins)">
+                    <i class="bi bi-x-circle me-1"></i> Rechazar
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Sección Procesadas -->
+    <div *ngIf="procesadas.length > 0">
+      <h5 class="fw-bold text-secondary mb-3">
+        <i class="bi bi-check2-all me-1"></i> Inscripciones Procesadas ({{ procesadas.length }})
+      </h5>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle" [appDataTable]="procesadas">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Estudiante</th>
+              <th>Correo</th>
+              <th>Fecha Inscripción</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let ins of procesadas; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td class="fw-semibold">{{ ins.estudiante_nombre }}</td>
+              <td>{{ ins.estudiante_correo }}</td>
+              <td>{{ ins.fecha_inscripcion | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td><span class="badge" [ngClass]="getBadgeClass(ins.estado_inscripcion)">{{ ins.estado_inscripcion }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

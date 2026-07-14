@@ -8,6 +8,7 @@ import { UsuariosAdminComponent } from '../../../usuarios/components/usuarios-ad
 import { DeportesAdminComponent } from '../../../deportes/components/deportes-admin/deportes-admin.component';
 import { CursosAdminComponent } from '../../../cursos/components/cursos-admin/cursos-admin.component';
 import { TorneosAdminComponent } from '../../../torneos/components/torneos-admin/torneos-admin.component';
+import { AuditoriasPage } from '../../../auditorias/pages/auditorias-page/auditorias-page';
 
 @Component({
   selector: 'app-admin-page',
@@ -17,12 +18,13 @@ import { TorneosAdminComponent } from '../../../torneos/components/torneos-admin
     UsuariosAdminComponent, 
     DeportesAdminComponent, 
     CursosAdminComponent, 
-    TorneosAdminComponent
+    TorneosAdminComponent,
+    AuditoriasPage
   ],
   templateUrl: './admin-page.html'
 })
 export class AdminPageComponent implements OnInit {
-  vistaActual: 'dashboard' | 'usuarios' | 'deportes' | 'cursos' | 'torneos' = 'dashboard';
+  vistaActual: 'dashboard' | 'usuarios' | 'deportes' | 'cursos' | 'torneos' | 'auditorias' = 'dashboard';
   
   // Dashboard state
   stats: any = {};
@@ -40,7 +42,7 @@ export class AdminPageComponent implements OnInit {
     this.cargarStats();
   }
 
-  cambiarVista(vista: 'dashboard' | 'usuarios' | 'deportes' | 'cursos' | 'torneos') {
+  cambiarVista(vista: 'dashboard' | 'usuarios' | 'deportes' | 'cursos' | 'torneos' | 'auditorias') {
     this.vistaActual = vista;
     if (vista === 'dashboard') {
       this.cargarStats();

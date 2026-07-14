@@ -26,7 +26,7 @@
     </div>
 
     <div class="table-responsive" *ngIf="!loadingCursos && cursos.length > 0">
-      <table class="table table-hover align-middle">
+      <table class="table table-hover align-middle" [appDataTable]="cursos">
         <thead class="table-light">
           <tr>
             <th>ID</th>
@@ -47,11 +47,14 @@
             <td>{{ c.lugar || 'N/A' }}</td>
             <td>{{ c.cupo }}</td>
             <td class="text-center">
-              <button class="btn btn-sm btn-outline-primary me-1" (click)="abrirModalCurso(c)">
-                <i class="bi bi-pencil"></i> Editar
+              <button class="btn btn-sm btn-outline-success me-1" (click)="abrirModalMatricular(c)" title="Matricular Estudiante">
+                <i class="bi bi-person-plus"></i> Matricular
               </button>
-              <button class="btn btn-sm btn-outline-danger" (click)="desactivarCurso(c.id)">
-                <i class="bi bi-trash"></i> Desactivar
+              <button class="btn btn-sm btn-outline-primary me-1" (click)="abrirModalCurso(c)" title="Editar">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger" (click)="desactivarCurso(c.id)" title="Desactivar">
+                <i class="bi bi-trash"></i>
               </button>
             </td>
           </tr>
@@ -85,7 +88,7 @@
                 <select class="form-select" formControlName="entrenador_id"
                   [class.is-invalid]="cursoForm.get('entrenador_id')?.invalid && cursoForm.get('entrenador_id')?.touched">
                   <option [ngValue]="null" disabled>Seleccione un entrenador</option>
-                  <option *ngFor="let e of entrenadores" [ngValue]="e.id">{{ e.nombre_usuario }}</option>
+                  <option *ngFor="let e of entrenadores" [ngValue]="e.id">{{ e.nombre_usuario || e.nombre }}</option>
                 </select>
                 <div class="invalid-feedback">Seleccione un entrenador.</div>
               </div>
@@ -132,6 +135,39 @@
             <button type="submit" class="btn btn-info text-white">
               {{ editandoCursoId ? 'Actualizar' : 'Crear' }}
             </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Matricular Estudiante -->
+  <div *ngIf="mostrarModalMatricular" class="modal d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">Matricular Estudiante</h5>
+          <button type="button" class="btn-close" (click)="cerrarModalMatricular()"></button>
+        </div>
+        <form [formGroup]="matricularForm" (ngSubmit)="matricularEstudiante()">
+          <div class="modal-body">
+            <p *ngIf="cursoSeleccionadoParaMatricula">
+              <strong>Curso:</strong> {{ cursoSeleccionadoParaMatricula.deporte_nombre }}<br>
+              <strong>Horario:</strong> {{ cursoSeleccionadoParaMatricula.dia_semana }} de {{ cursoSeleccionadoParaMatricula.hora_inicio }} a {{ cursoSeleccionadoParaMatricula.hora_fin }}
+            </p>
+            <div class="mb-3">
+              <label class="form-label">Seleccionar Estudiante *</label>
+              <select class="form-select" formControlName="estudiante_id"
+                [class.is-invalid]="matricularForm.get('estudiante_id')?.invalid && matricularForm.get('estudiante_id')?.touched">
+                <option [ngValue]="null" disabled>-- Elija un estudiante --</option>
+                <option *ngFor="let e of estudiantes" [ngValue]="e.id">{{ e.nombre }} ({{ e.numero_documento }})</option>
+              </select>
+              <div class="invalid-feedback">Seleccione un estudiante.</div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="cerrarModalMatricular()">Cancelar</button>
+            <button type="submit" class="btn btn-success text-white">Matricular</button>
           </div>
         </form>
       </div>

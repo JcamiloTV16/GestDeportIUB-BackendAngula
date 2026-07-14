@@ -12,7 +12,7 @@
   </div>
 
   <div class="table-responsive" *ngIf="!loading && historial.length > 0">
-    <table class="table table-hover align-middle">
+    <table class="table table-hover align-middle" [appDataTable]="historial">
       <thead class="table-light">
         <tr>
           <th>ID</th>

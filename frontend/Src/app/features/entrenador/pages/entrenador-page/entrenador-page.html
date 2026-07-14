@@ -18,11 +18,10 @@
 
   <div class="card border-0 shadow-sm p-4">
     <div *ngIf="vistaActual === 'grupos'">
-      <h4>Mis Grupos</h4>
-      <p class="text-muted">Tus grupos asignados aparecerán aquí.</p>
+      <app-mis-grupos-entrenador></app-mis-grupos-entrenador>
     </div>
     <div *ngIf="vistaActual === 'torneos'">
-      <p>Gestión de torneos.</p>
+      <app-torneos-admin></app-torneos-admin>
     </div>
   </div>
 </div>

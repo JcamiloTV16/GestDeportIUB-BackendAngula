@@ -1,0 +1,69 @@
+<div>
+  <!-- Error -->
+  <div *ngIf="mensajeError" class="alert alert-danger alert-dismissible fade show">
+    {{ mensajeError }}
+    <button type="button" class="btn-close" (click)="mensajeError = ''"></button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="text-muted mt-2">Cargando tus cursos...</p>
+  </div>
+
+  <!-- Sin cursos -->
+  <div *ngIf="!loading && cursos.length === 0 && !mensajeError" class="text-center py-5">
+    <i class="bi bi-journal-x fs-1 text-muted d-block mb-3"></i>
+    <h5 class="text-muted">No estás inscrito en ningún curso</h5>
+    <p class="text-muted small">Contacta a un administrador para inscribirte en cursos deportivos.</p>
+  </div>
+
+  <!-- Lista de cursos -->
+  <div *ngIf="!loading && cursos.length > 0" class="row g-3">
+    <div class="col-md-6 col-lg-4" *ngFor="let c of cursos">
+      <div class="card h-100 border-0 shadow-sm">
+        <!-- Cabecera con color por deporte -->
+        <div class="card-header border-0 text-white bg-primary">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi fs-5" [ngClass]="getDeporteIcon(c.nombre)"></i>
+            <h6 class="mb-0 fw-bold">{{ c.nombre || 'Deporte' }}</h6>
+          </div>
+        </div>
+        <div class="card-body">
+          <!-- Día -->
+          <div class="d-flex align-items-center mb-2">
+            <i class="bi bi-calendar3 text-muted me-2"></i>
+            <span class="badge {{ getDiaBadgeClass(c.dia_semana) }}">{{ c.dia_semana }}</span>
+          </div>
+          <!-- Horario -->
+          <div class="d-flex align-items-center mb-2">
+            <i class="bi bi-clock text-muted me-2"></i>
+            <span class="text-body">{{ c.hora_inicio }} – {{ c.hora_fin }}</span>
+          </div>
+          <!-- Lugar -->
+          <div class="d-flex align-items-center mb-2" *ngIf="c.lugar">
+            <i class="bi bi-geo-alt text-muted me-2"></i>
+            <span class="text-body">{{ c.lugar }}</span>
+          </div>
+          <!-- Entrenador -->
+          <div class="d-flex align-items-center" *ngIf="c.entrenador_nombre">
+            <i class="bi bi-person-badge text-muted me-2"></i>
+            <span class="text-muted small">{{ c.entrenador_nombre }}</span>
+          </div>
+        </div>
+        <div class="card-footer bg-transparent border-top-0">
+          <div class="d-flex justify-content-between align-items-center">
+            <small class="text-muted">
+              <i class="bi bi-people me-1"></i>Cupo: {{ c.cupo }}
+            </small>
+            <span class="badge bg-success-subtle text-success border border-success-subtle">
+              <i class="bi bi-check-circle me-1"></i>Inscrito
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

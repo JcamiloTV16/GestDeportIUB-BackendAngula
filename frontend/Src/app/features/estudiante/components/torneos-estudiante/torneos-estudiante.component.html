@@ -1,0 +1,100 @@
+<div>
+  <!-- Alertas de feedback -->
+  <div *ngIf="mensajeExito" class="alert alert-success alert-dismissible fade show">
+    {{ mensajeExito }}
+    <button type="button" class="btn-close" (click)="mensajeExito = ''"></button>
+  </div>
+  <div *ngIf="mensajeError" class="alert alert-danger alert-dismissible fade show">
+    {{ mensajeError }}
+    <button type="button" class="btn-close" (click)="mensajeError = ''"></button>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="text-muted mt-2">Cargando torneos...</p>
+  </div>
+
+  <div *ngIf="!loading && torneos.length === 0" class="text-center py-5">
+    <i class="bi bi-trophy fs-1 text-muted d-block mb-3"></i>
+    <h5 class="text-muted">No hay torneos disponibles</h5>
+    <p class="text-muted small">Vuelve a revisar más adelante.</p>
+  </div>
+
+  <div *ngIf="!loading && torneos.length > 0" class="row g-4">
+    <div class="col-md-6 col-lg-4" *ngFor="let t of torneos">
+      <div class="card h-100 border-0 shadow-sm transition-hover">
+        <div class="card-header border-0 text-dark"
+             style="background-color: var(--iub-gold);">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi fs-5" [ngClass]="getDeporteIcon(t.deporte_nombre)"></i>
+            <h6 class="mb-0 fw-bold text-truncate" [title]="t.nombre">{{ t.nombre }}</h6>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="small text-muted mb-3" style="min-height: 40px;">
+            {{ t.descripcion || 'Sin descripción disponible.' }}
+          </p>
+          
+          <div class="d-flex flex-column gap-2 small">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-activity text-muted me-2"></i>
+              <span class="fw-medium">Deporte:</span>
+              <span class="ms-auto">{{ t.deporte_nombre || 'N/A' }}</span>
+            </div>
+            <div class="d-flex align-items-center">
+              <i class="bi bi-calendar-event text-muted me-2"></i>
+              <span class="fw-medium">Inicia:</span>
+              <span class="ms-auto">{{ t.fecha_inicio || 'Por definir' }}</span>
+            </div>
+            <div class="d-flex align-items-center">
+              <i class="bi bi-geo-alt text-muted me-2"></i>
+              <span class="fw-medium">Lugar:</span>
+              <span class="ms-auto">{{ t.lugar || 'Por definir' }}</span>
+            </div>
+            <div class="d-flex align-items-center mt-2">
+              <span class="badge w-100"
+                [class.bg-secondary]="t.estado_torneo === 'Próximamente'"
+                [class.bg-success]="t.estado_torneo === 'Inscripciones Abiertas'"
+                [class.bg-primary]="t.estado_torneo === 'En Curso'"
+                [class.bg-dark]="t.estado_torneo === 'Finalizado'">
+                {{ t.estado_torneo }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer bg-white border-top-0 pt-0 pb-3">
+          <!-- Si el torneo está en "Inscripciones Abiertas" y NO está inscrito -->
+          <button *ngIf="t.estado_torneo === 'Inscripciones Abiertas' && !estaInscrito(t.id)" 
+                  class="btn btn-warning w-100 fw-bold" 
+                  (click)="inscribirse(t)">
+            <i class="bi bi-person-plus-fill me-1"></i> Inscribirme
+          </button>
+          
+          <!-- Si YA está inscrito -->
+          <button *ngIf="estaInscrito(t.id)" 
+                  class="btn btn-outline-danger w-100 fw-bold" 
+                  (click)="cancelarInscripcion(t)">
+            <i class="bi bi-x-circle me-1"></i> Cancelar Inscripción
+          </button>
+          
+          <!-- Si no se puede inscribir y no está inscrito -->
+          <button *ngIf="t.estado_torneo !== 'Inscripciones Abiertas' && !estaInscrito(t.id)" 
+                  class="btn btn-secondary w-100" disabled>
+            <i class="bi bi-lock-fill me-1"></i> No disponible
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.transition-hover {
+  transition: transform 0.2s ease-in-out;
+}
+.transition-hover:hover {
+  transform: translateY(-5px);
+}
+</style>

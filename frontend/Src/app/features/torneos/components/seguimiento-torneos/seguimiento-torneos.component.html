@@ -50,15 +50,80 @@
                   <option *ngFor="let p of inscritos" [ngValue]="p.usuario_id">{{ p.usuario_nombre }}</option>
                 </select>
               </div>
-              <div class="mb-2">
-                <label class="form-label small">Tipo (ej. Goles, Tiempo, Sets)</label>
-                <input type="text" class="form-control form-control-sm" formControlName="tipo_estadistica" placeholder="Goles">
-              </div>
-              <div class="mb-3">
-                <label class="form-label small">Valor (JSON)</label>
-                <textarea class="form-control form-control-sm" rows="2" formControlName="valor_json_texto"></textarea>
-                <small class="text-muted" style="font-size: 0.75rem;">Ej: &#123;"cantidad": 1&#125; o &#123;"tiempo": "00:45:00"&#125;</small>
-              </div>
+
+              <!-- FÚTBOL -->
+              <ng-container *ngIf="torneoSeleccionado.deporte_nombre === 'Fútbol'">
+                <div class="mb-2">
+                  <label class="form-label small">Tipo de evento</label>
+                  <select class="form-select form-select-sm" formControlName="tipo_estadistica">
+                    <option value="Goles">⚽ Gol</option>
+                    <option value="Asistencias">🎯 Asistencia</option>
+                    <option value="Tarjetas Amarillas">🟨 Tarjeta Amarilla</option>
+                    <option value="Tarjetas Rojas">🟥 Tarjeta Roja</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small">Cantidad</label>
+                  <input type="number" class="form-control form-control-sm" formControlName="cantidad" min="1" value="1">
+                </div>
+              </ng-container>
+
+              <!-- BALONCESTO -->
+              <ng-container *ngIf="torneoSeleccionado.deporte_nombre === 'Baloncesto'">
+                <div class="mb-2">
+                  <label class="form-label small">Tipo de evento</label>
+                  <select class="form-select form-select-sm" formControlName="tipo_estadistica">
+                    <option value="Puntos">🏀 Puntos</option>
+                    <option value="Rebotes">💪 Rebotes</option>
+                    <option value="Asistencias">🎯 Asistencias</option>
+                    <option value="Robos">🤿 Robos</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small">Cantidad</label>
+                  <input type="number" class="form-control form-control-sm" formControlName="cantidad" min="1">
+                </div>
+              </ng-container>
+
+              <!-- ATLETISMO -->
+              <ng-container *ngIf="torneoSeleccionado.deporte_nombre === 'Atletismo'">
+                <div class="mb-2">
+                  <label class="form-label small">Tipo de evento</label>
+                  <select class="form-select form-select-sm" formControlName="tipo_estadistica">
+                    <option value="Tiempo Final">🏃 Tiempo Final</option>
+                    <option value="Tiempo Parcial">⏱️ Tiempo Parcial</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small">Tiempo (en segundos)</label>
+                  <input type="number" class="form-control form-control-sm" formControlName="cantidad" min="0" step="0.1" placeholder="Ej: 45.5">
+                </div>
+              </ng-container>
+
+              <!-- AJEDREZ -->
+              <ng-container *ngIf="torneoSeleccionado.deporte_nombre === 'Ajedrez'">
+                <div class="mb-3">
+                  <label class="form-label small">Resultado de la partida</label>
+                  <select class="form-select form-select-sm" formControlName="tipo_estadistica">
+                    <option value="Victoria">♟️ Victoria (+1 pt)</option>
+                    <option value="Empate">🤝 Empate (+0.5 pts)</option>
+                    <option value="Derrota">❌ Derrota (+0 pts)</option>
+                  </select>
+                </div>
+              </ng-container>
+
+              <!-- OTRO DEPORTE -->
+              <ng-container *ngIf="!['Fútbol','Baloncesto','Atletismo','Ajedrez'].includes(torneoSeleccionado.deporte_nombre)">
+                <div class="mb-2">
+                  <label class="form-label small">Tipo de evento</label>
+                  <input type="text" class="form-control form-control-sm" formControlName="tipo_estadistica" placeholder="Ej: Puntos, Tiempo, Sets...">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small">Valor / Cantidad</label>
+                  <input type="number" class="form-control form-control-sm" formControlName="cantidad" min="0">
+                </div>
+              </ng-container>
+
               <button type="submit" class="btn btn-sm btn-primary w-100" [disabled]="loadingDetalle || statForm.invalid">
                 <i class="bi bi-plus-circle me-1"></i> Registrar
               </button>
@@ -76,22 +141,20 @@
             No hay eventos registrados aún.
           </div>
           
-          <div *ngIf="!loadingDetalle && estadisticas.length > 0" class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+          <div *ngIf="!loadingDetalle && estadisticas.length > 0" class="table-responsive" style="max-height: 220px; overflow-y: auto;">
             <table class="table table-sm table-hover" style="font-size: 0.85rem;">
               <thead class="table-light sticky-top">
                 <tr>
                   <th>Jugador</th>
                   <th>Tipo</th>
                   <th>Valor</th>
-                  <th>Fecha</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let e of estadisticas">
                   <td class="fw-bold">{{ e.usuario_nombre }}</td>
                   <td>{{ e.tipo_estadistica }}</td>
-                  <td>{{ e.valor_json | json }}</td>
-                  <td>{{ e.fecha_registro | date:'short' }}</td>
+                  <td>{{ e.valor_json?.cantidad ?? e.valor_json?.segundos ?? '—' }}</td>
                 </tr>
               </tbody>
             </table>
@@ -157,7 +220,7 @@
         <div *ngIf="torneoSeleccionado.deporte_nombre === 'Ajedrez'">
           <h6 class="fw-bold">♟️ Tabla de Posiciones — Sistema Suizo</h6>
           <table class="table table-sm table-striped">
-            <thead class="table-dark"><tr><th>#</th><th>Jugador</th><th class="text-center">Puntos</th><th class="text-center">✅ Victorias</th><th class="text-center">🤝 Empates</th><th class="text-center">❌ Derrotas</th></tr></thead>
+            <thead class="table-dark"><tr><th>#</th><th>Jugador</th><th class="text-center">Puntos</th><th class="text-center">✅ V</th><th class="text-center">🤝 E</th><th class="text-center">❌ D</th></tr></thead>
             <tbody>
               <tr *ngFor="let item of tablaRankingAjedrez; let i = index">
                 <td class="text-muted">{{ i + 1 }}</td>
@@ -168,6 +231,21 @@
                 <td class="text-center text-danger">{{ item.derrotas }}</td>
               </tr>
               <tr *ngIf="tablaRankingAjedrez.length === 0"><td colspan="6" class="text-muted">No hay partidas registradas.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- OTRO -->
+        <div *ngIf="!['Fútbol','Baloncesto','Atletismo','Ajedrez'].includes(torneoSeleccionado.deporte_nombre) && tablaGeneral.length > 0">
+          <h6 class="fw-bold">📊 Ranking General</h6>
+          <table class="table table-sm table-striped">
+            <thead class="table-dark"><tr><th>#</th><th>Jugador</th><th class="text-center">Total</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let item of tablaGeneral; let i = index">
+                <td class="text-muted">{{ i + 1 }}</td>
+                <td>{{ item.jugador }}</td>
+                <td class="text-center fw-bold">{{ item.total }}</td>
+              </tr>
             </tbody>
           </table>
         </div>

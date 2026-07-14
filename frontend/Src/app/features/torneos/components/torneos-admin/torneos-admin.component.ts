@@ -5,6 +5,7 @@ import { GestionTorneosComponent } from '../gestion-torneos/gestion-torneos.comp
 import { DashboardTorneosComponent } from '../dashboard-torneos/dashboard-torneos.component';
 import { SeguimientoTorneosComponent } from '../seguimiento-torneos/seguimiento-torneos.component';
 import { HistorialTorneosComponent } from '../historial-torneos/historial-torneos.component';
+import { InscripcionesTorneosComponent } from '../inscripciones-torneos/inscripciones-torneos.component';
 
 @Component({
   selector: 'app-torneos-admin',
@@ -14,10 +15,12 @@ import { HistorialTorneosComponent } from '../historial-torneos/historial-torneo
     GestionTorneosComponent,
     DashboardTorneosComponent,
     SeguimientoTorneosComponent,
-    HistorialTorneosComponent
+    HistorialTorneosComponent,
+    InscripcionesTorneosComponent
   ],
   templateUrl: './torneos-admin.component.html'
 })
 export class TorneosAdminComponent {
-  tabActual: 'dashboard' | 'gestion' | 'seguimiento' | 'historial' = 'gestion';
+  tabActual: 'dashboard' | 'gestion' | 'inscripciones' | 'seguimiento' | 'historial' = 'gestion';
 }
+

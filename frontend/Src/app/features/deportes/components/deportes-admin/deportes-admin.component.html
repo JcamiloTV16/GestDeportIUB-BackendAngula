@@ -26,7 +26,7 @@
     </div>
 
     <div class="table-responsive" *ngIf="!loadingDeportes && deportes.length > 0">
-      <table class="table table-hover align-middle">
+      <table class="table table-hover align-middle" [appDataTable]="deportes">
         <thead class="table-light">
           <tr>
             <th>ID</th>
@@ -41,12 +41,14 @@
             <td class="fw-semibold">{{ d.nombre }}</td>
             <td>{{ d.descripcion || 'Sin descripción' }}</td>
             <td class="text-center">
-              <button class="btn btn-sm btn-outline-primary me-1" (click)="abrirModalDeporte(d)">
-                <i class="bi bi-pencil"></i> Editar
-              </button>
-              <button class="btn btn-sm btn-outline-danger" (click)="desactivarDeporte(d.id)">
-                <i class="bi bi-trash"></i> Desactivar
-              </button>
+              <div class="d-flex justify-content-center gap-2 flex-wrap">
+                <button class="btn btn-sm btn-outline-primary text-nowrap" (click)="abrirModalDeporte(d)">
+                  <i class="bi bi-pencil"></i> Editar
+                </button>
+                <button class="btn btn-sm btn-outline-danger text-nowrap" (click)="desactivarDeporte(d.id)">
+                  <i class="bi bi-trash"></i> Desactivar
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>

@@ -3,10 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DeportesService } from '../../services/deportes.service';
 
+import { DataTableDirective } from '../../../../core/directives/data-table.directive';
+
 @Component({
   selector: 'app-deportes-admin',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, DataTableDirective],
   templateUrl: './deportes-admin.component.html'
 })
 export class DeportesAdminComponent implements OnInit {

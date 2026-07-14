@@ -49,7 +49,7 @@ class HorarioController(BaseController):
         finally:
             if conn: conn.close()
 
-    def get_by_entrenador(self, entrenador_id: int):
+    def get_by_entrenador(self, usuario_id: int):
         conn = None
         try:
             conn = get_db_connection()
@@ -59,8 +59,9 @@ class HorarioController(BaseController):
                        h.dia_semana, h.hora_inicio, h.hora_fin, h.lugar, h.estado
                 FROM horarios h
                 LEFT JOIN deportes d ON h.deporte_id = d.id
-                WHERE h.entrenador_id = %s AND h.estado = TRUE
-            """, (entrenador_id,))
+                JOIN entrenadores e ON h.entrenador_id = e.id
+                WHERE e.usuario_id = %s AND h.estado = TRUE
+            """, (usuario_id,))
             result = cursor.fetchall()
             colnames = [desc[0] for desc in cursor.description]
             payload = [dict(zip(colnames, row)) for row in result]

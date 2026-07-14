@@ -4,21 +4,29 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { CursosService } from '../../services/cursos.service';
 import { DeportesService } from '../../../deportes/services/deportes.service';
 import { AdminService } from '../../../admin/services/admin.service';
+import { UsuariosService } from '../../../usuarios/services/usuarios.service';
+import { API, ApiService } from '../../../../core/services/api.service';
+
+import { DataTableDirective } from '../../../../core/directives/data-table.directive';
 
 @Component({
   selector: 'app-cursos-admin',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, DataTableDirective],
   templateUrl: './cursos-admin.component.html'
 })
 export class CursosAdminComponent implements OnInit {
   cursos: any[] = [];
   deportes: any[] = [];
   entrenadores: any[] = [];
+  estudiantes: any[] = [];
   loadingCursos = false;
   cursoForm!: FormGroup;
+  matricularForm!: FormGroup;
   mostrarModalCurso = false;
+  mostrarModalMatricular = false;
   editandoCursoId: number | null = null;
+  cursoSeleccionadoParaMatricula: any = null;
 
   mensajeExito = '';
   mensajeError = '';
@@ -27,7 +35,9 @@ export class CursosAdminComponent implements OnInit {
     private readonly fb: FormBuilder,
     private readonly cursosService: CursosService,
     private readonly deportesService: DeportesService,
-    private readonly adminService: AdminService
+    private readonly adminService: AdminService,
+    private readonly usuariosService: UsuariosService,
+    private readonly api: ApiService
   ) {}
 
   ngOnInit() {
@@ -45,19 +55,28 @@ export class CursosAdminComponent implements OnInit {
       lugar: [''],
       cupo: [20, [Validators.required, Validators.min(1)]]
     });
+
+    this.matricularForm = this.fb.group({
+      estudiante_id: [null, Validators.required]
+    });
   }
 
   async cargarDatos() {
     this.loadingCursos = true;
     try {
-      const [curRes, depRes, entRes] = await Promise.all([
+      const [curRes, depRes, entRes, usuRes] = await Promise.all([
         this.cursosService.obtenerHorarios(),
         this.deportesService.obtenerDeportes(),
-        this.adminService.obtenerEntrenadores()
+        this.adminService.obtenerEntrenadores(),
+        this.usuariosService.obtenerUsuarios()
       ]);
       this.cursos = curRes.resultado || [];
       this.deportes = depRes.resultado || [];
       this.entrenadores = entRes.resultado || [];
+      
+      const allUsers = usuRes.resultado || [];
+      // Asumiendo que el rol_id = 2 es Estudiante
+      this.estudiantes = allUsers.filter((u: any) => u.rol_id === 2 || u.nombre_rol === 'Estudiante');
     } catch (e) {
       console.error(e);
     } finally {
@@ -111,16 +130,51 @@ export class CursosAdminComponent implements OnInit {
     }
   }
 
+  abrirModalMatricular(curso: any) {
+    this.limpiarMensajes();
+    this.cursoSeleccionadoParaMatricula = curso;
+    this.matricularForm.reset();
+    this.mostrarModalMatricular = true;
+  }
+
+  cerrarModalMatricular() {
+    this.mostrarModalMatricular = false;
+    this.cursoSeleccionadoParaMatricula = null;
+    this.matricularForm.reset();
+  }
+
+  async matricularEstudiante() {
+    if (this.matricularForm.invalid) {
+      this.matricularForm.markAllAsTouched();
+      return;
+    }
+    try {
+      const estudiante_id = this.matricularForm.value.estudiante_id;
+      const estudiante = this.estudiantes.find(e => e.id === estudiante_id);
+      
+      const payload = {
+        estudiante_id: estudiante_id,
+        deporte_id: this.cursoSeleccionadoParaMatricula.deporte_id,
+        horario_id: this.cursoSeleccionadoParaMatricula.id,
+        programa_id: estudiante?.programa_id || 1 // Fallback if no program
+      };
+
+      await this.api.request(`${API}/inscripciones/`, {
+        method: 'POST',
+        headers: this.api.jsonHeaders(),
+        body: JSON.stringify(payload)
+      });
+      
+      this.mostrarExito('Estudiante matriculado exitosamente en el curso');
+      this.cerrarModalMatricular();
+    } catch (e: any) {
+      this.mostrarError(e.message || 'Error al matricular estudiante');
+    }
+  }
+
   async desactivarCurso(id: number) {
     if (!confirm('¿Está seguro de desactivar este curso (horario)?')) return;
     try {
-      // Usar lógica de cursos, aunque la api de cursos service exponga desactivar si la tiene.
-      // Aquí el admin-page original usaba this.cursosService.eliminarHorario pero no lo agregamos,
-      // Espera, el admin-page usaba this.cursosService.eliminarHorario? No, usaba desactivarCurso(id).
-      // Veamos si cursosService tiene eliminarHorario o eliminarCurso.
-      // Me aseguraré de llamar a un método genérico o dejo lo que tenía.
-      // En admin-page.ts tenía: await this.cursosService.obtenerHorarios(), ¿tenía eliminar?
-      // Revisaremos luego.
       alert('Funcionalidad de desactivar curso está pendiente de implementar en el servicio si no existe.');
       await this.cargarDatos();
     } catch (e: any) {
@@ -145,3 +199,4 @@ export class CursosAdminComponent implements OnInit {
     this.mensajeError = '';
   }
 }
+

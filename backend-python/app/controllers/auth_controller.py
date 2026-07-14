@@ -58,7 +58,7 @@ class AuthController:
                     "id": user_id,
                     "nombre": user_name,
                     "email": login_data.email,
-                    "rol": role_name or "estudiante", # Fallback if no role assigned
+                    "rol": role_name or "Deportista", # Fallback if no role assigned
                     "programa_id": programa_id
                 }
             }

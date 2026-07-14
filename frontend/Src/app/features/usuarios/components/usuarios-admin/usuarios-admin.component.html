@@ -26,7 +26,7 @@
     </div>
 
     <div class="table-responsive" *ngIf="!loadingUsuarios && usuarios.length > 0">
-      <table class="table table-hover align-middle">
+      <table class="table table-hover align-middle" [appDataTable]="usuarios">
         <thead class="table-light">
           <tr>
             <th>ID</th>
@@ -98,9 +98,7 @@
               <div class="col-md-4">
                 <label class="form-label">Tipo Documento</label>
                 <select class="form-select" formControlName="tipo_documento_id">
-                  <option [ngValue]="1">C.C.</option>
-                  <option [ngValue]="2">T.I.</option>
-                  <option [ngValue]="3">C.E.</option>
+                  <option *ngFor="let td of tiposDocumento" [ngValue]="td.id">{{ td.nombre }}</option>
                 </select>
               </div>
               <div class="col-md-4">
@@ -112,10 +110,21 @@
               <div class="col-md-4">
                 <label class="form-label">Facultad</label>
                 <select class="form-select" formControlName="facultad_id">
-                  <option [ngValue]="1">Ingeniería</option>
-                  <option [ngValue]="2">Ciencias de la Salud</option>
-                  <option [ngValue]="3">Ciencias Sociales</option>
-                  <option [ngValue]="4">Educación</option>
+                  <option *ngFor="let f of facultades" [ngValue]="f.id">{{ f.nombre }}</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Programa Académico</label>
+                <select class="form-select" formControlName="programa_id">
+                  <option [ngValue]="null">-- Seleccione programa --</option>
+                  <option *ngFor="let p of programasFiltrados" [ngValue]="p.id">{{ p.nombre }}</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Nivel Educativo</label>
+                <select class="form-select" formControlName="nivel_educativo_id">
+                  <option [ngValue]="null">-- Seleccione nivel --</option>
+                  <option *ngFor="let n of nivelesEducativos" [ngValue]="n.id">{{ n.nombre }}</option>
                 </select>
               </div>
             </div>
