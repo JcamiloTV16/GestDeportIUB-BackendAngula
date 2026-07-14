@@ -73,7 +73,7 @@ export class AuthService {
     const value = role.toLowerCase();
     if (value.includes('admin')) return 'admin';
     if (value.includes('entrenador')) return 'entrenador';
-    if (value.includes('estudiante')) return 'estudiante';
+    if (value.includes('deportista') || value.includes('estudiante')) return 'estudiante';
     return value;
   }
 }

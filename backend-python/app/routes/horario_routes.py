@@ -12,6 +12,10 @@ async def get_horarios():
 async def get_horarios_inactivos():
     return horario_controller.get_inactive()
 
+@router.get("/horarios/disponibles/{usuario_id}", tags=["Horarios"])
+async def get_horarios_disponibles(usuario_id: int):
+    return horario_controller.get_disponibles_para_usuario(usuario_id)
+
 @router.get("/horarios/entrenador/{entrenador_id}", tags=["Horarios"])
 async def get_horarios_by_entrenador(entrenador_id: int):
     return horario_controller.get_by_entrenador(entrenador_id)

@@ -71,6 +71,41 @@ class HorarioController(BaseController):
         finally:
             if conn: conn.close()
 
+    def get_disponibles_para_usuario(self, usuario_id: int):
+        """Retorna horarios activos donde el usuario NO está inscrito."""
+        conn = None
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT h.id, h.deporte_id, d.nombre as deporte_nombre,
+                       h.dia_semana, h.hora_inicio, h.hora_fin, h.lugar, h.cupo,
+                       h.entrenador_id,
+                       u.nombre as entrenador_nombre,
+                       (
+                           SELECT COUNT(*) FROM inscripciones i2
+                           WHERE i2.horario_id = h.id AND i2.estado = TRUE
+                       ) as inscritos
+                FROM horarios h
+                LEFT JOIN deportes d ON h.deporte_id = d.id
+                LEFT JOIN entrenadores e ON h.entrenador_id = e.id
+                LEFT JOIN usuarios u ON e.usuario_id = u.id
+                WHERE h.estado = TRUE
+                  AND h.id NOT IN (
+                      SELECT i.horario_id FROM inscripciones i
+                      WHERE i.estudiante_id = %s AND i.estado = TRUE
+                  )
+                ORDER BY d.nombre, h.dia_semana
+            """, (usuario_id,))
+            result = cursor.fetchall()
+            colnames = [desc[0] for desc in cursor.description]
+            payload = [dict(zip(colnames, row)) for row in result]
+            return {"resultado": jsonable_encoder(payload)}
+        except Exception as err:
+            raise HTTPException(status_code=500, detail=str(err))
+        finally:
+            if conn: conn.close()
+
     def delete(self, id: int):
         conn = None
         try:
