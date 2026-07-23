@@ -152,3 +152,6 @@ npm-debug.log*
 dist/
 .env.local
 .env.*.local
+
+# Chroma vector-store data (generated locally)
+backend-python/chroma_db/
