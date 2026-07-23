@@ -1,7 +1,14 @@
 <div class="app-container min-vh-100 d-flex flex-column">
+
   <app-navbar *ngIf="showShell"></app-navbar>
   <main class="flex-grow-1">
     <router-outlet />
   </main>
   <app-footer *ngIf="showShell"></app-footer>
+
+  <!-- Floating Chat Widget (visible solo para deportistas / estudiantes) -->
+  <app-chat-widget *ngIf="showChatbot"></app-chat-widget>
+
 </div>
+
+

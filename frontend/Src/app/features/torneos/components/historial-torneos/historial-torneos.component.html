@@ -1,6 +1,9 @@
 <div class="card border-0 shadow-sm p-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="fw-bold m-0">Historial de Torneos</h4>
+    <div>
+      <h4 class="fw-bold m-0">Historial de Torneos Culminados</h4>
+      <p class="text-muted small mb-0">Descarga los informes oficiales en PDF de los torneos que han finalizado.</p>
+    </div>
   </div>
 
   <div *ngIf="loading" class="text-center py-4">
@@ -15,24 +18,33 @@
     <table class="table table-hover align-middle" [appDataTable]="historial">
       <thead class="table-light">
         <tr>
-          <th>ID</th>
-          <th>Nombre</th>
+          <th>#</th>
+          <th>Nombre del Torneo</th>
           <th>Deporte</th>
           <th>Población</th>
           <th>Fechas</th>
           <th>Inscritos</th>
+          <th class="text-center">Informe PDF</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let t of historial">
-          <td>{{ t.id }}</td>
+        <tr *ngFor="let t of historial; let i = index">
+          <td>{{ i + 1 }}</td>
           <td class="fw-semibold">{{ t.nombre }}</td>
-          <td>{{ t.deporte_nombre || 'N/A' }}</td>
+          <td><span class="badge bg-secondary">{{ t.deporte_nombre || 'N/A' }}</span></td>
           <td>{{ t.poblacion_objetivo || 'Todos' }}</td>
           <td>{{ t.fecha_inicio }} al {{ t.fecha_fin || 'N/A' }}</td>
-          <td>{{ t.total_inscritos || 0 }}</td>
+          <td><span class="badge bg-info text-dark">{{ t.total_inscritos || 0 }} inscritos</span></td>
+          <td class="text-center">
+            <button class="btn btn-danger btn-sm shadow-sm d-inline-flex align-items-center gap-1" (click)="descargarPdfHistorial(t)" title="Descargar Informe PDF">
+              <i class="bi bi-file-earmark-pdf-fill"></i>
+              <span>Descargar PDF</span>
+            </button>
+          </td>
         </tr>
       </tbody>
     </table>
   </div>
 </div>
+
+

@@ -10,6 +10,7 @@ import { InscripcionDeportesComponent } from '../../components/inscripcion-depor
   imports: [CommonModule, MisCursosComponent, TorneosEstudianteComponent, InscripcionDeportesComponent],
   templateUrl: './estudiante-page.html'
 })
+
 export class EstudiantePage {
   vistaActual = 'deportes';
 

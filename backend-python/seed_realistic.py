@@ -61,9 +61,10 @@ def seed_realistic():
         for t_id, t_name, d_id in torneo_ids:
             for u in users[:4]:  # Enrolar a 4 usuarios en cada torneo
                 cursor.execute("""
-                    INSERT INTO inscripciones_torneo (torneo_id, estudiante_id, estado)
-                    VALUES (%s, %s, TRUE) ON CONFLICT DO NOTHING
+                    INSERT INTO inscripciones_torneo (torneo_id, estudiante_id, estado_inscripcion, estado)
+                    VALUES (%s, %s, 'Aprobada', TRUE) ON CONFLICT DO NOTHING
                 """, (t_id, u))
+
                 
                 # Si está en curso, agregar estadísticas
                 if "Activo" in t_name or "En Curso" in t_name or "Fútbol" in t_name:

@@ -1,6 +1,63 @@
-<div class="container py-4">
-  <h2 class="fw-bold mb-4">Chatbot</h2>
-  <div class="alert alert-info">
-    Módulo de chatbot en construcción.
+<div class="chatbot-container">
+  <!-- Header -->
+  <div class="chat-header">
+    <div class="header-avatar">
+      <i class="bi bi-robot"></i>
+    </div>
+    <div class="header-info">
+      <h5 class="mb-0 fw-bold">Asistente Deportivo IUB</h5>
+      <span class="status-indicator">
+        <span class="status-dot"></span>
+        En línea — Potenciado por IA
+      </span>
+    </div>
+  </div>
+
+  <!-- Messages Area -->
+  <div class="messages-area" #messagesContainer>
+    <div *ngFor="let msg of messages" class="message-wrapper" [ngClass]="msg.sender">
+
+      <!-- Bot avatar -->
+      <div *ngIf="msg.sender === 'bot'" class="bot-avatar">
+        <i class="bi bi-robot"></i>
+      </div>
+
+      <!-- Message bubble -->
+      <div class="message-bubble" [ngClass]="msg.sender">
+        <div *ngIf="msg.isTyping" class="typing-indicator">
+          <span></span><span></span><span></span>
+        </div>
+        <div *ngIf="!msg.isTyping" class="message-text" [innerHTML]="msg.text"></div>
+        <div *ngIf="!msg.isTyping" class="message-time">
+          {{ msg.timestamp | date:'HH:mm' }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input Area -->
+  <div class="input-area">
+    <div class="input-wrapper">
+      <input
+        type="text"
+        class="chat-input"
+        [(ngModel)]="userInput"
+        (keydown)="onKeyDown($event)"
+        placeholder="Escribe tu pregunta sobre deportes, reglamentos, inscripciones..."
+        [disabled]="isLoading"
+        autocomplete="off"
+      />
+      <button
+        class="send-btn"
+        (click)="enviarMensaje()"
+        [disabled]="!userInput.trim() || isLoading"
+      >
+        <i class="bi bi-send-fill"></i>
+      </button>
+    </div>
+    <p class="input-hint">
+      <i class="bi bi-info-circle me-1"></i>
+      Puedo responder sobre reglamentos, escenarios deportivos, protocolos, inscripciones y más.
+    </p>
   </div>
 </div>

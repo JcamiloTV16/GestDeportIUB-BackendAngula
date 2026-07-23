@@ -9,6 +9,8 @@ import { TorneosAdminComponent } from '../../../torneos/components/torneos-admin
   imports: [CommonModule, MisGruposEntrenadorComponent, TorneosAdminComponent],
   templateUrl: './entrenador-page.html'
 })
+
+
 export class EntrenadorPage {
   vistaActual = 'grupos';
 

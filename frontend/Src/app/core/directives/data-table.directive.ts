@@ -24,21 +24,34 @@ export class DataTableDirective implements OnChanges, OnDestroy {
   private initDataTable() {
     // Wait for Angular to render the ngFor elements
     setTimeout(() => {
-      this.destroyDataTable(); // clean up if already exists
+      if (!this.el?.nativeElement || !document.body.contains(this.el.nativeElement)) {
+        return;
+      }
+      this.destroyDataTable();
       
-      this.dataTable = $(this.el.nativeElement).DataTable({
-        language: {
-          url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json',
-        },
-        destroy: true, // Allow re-initialization
-        responsive: true
-      });
-    }, 0);
+      try {
+        this.dataTable = $(this.el.nativeElement).DataTable({
+          language: {
+            url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json',
+          },
+          destroy: true, // Allow re-initialization
+          responsive: true
+        });
+      } catch (e) {
+        // Safe catch for transient DOM destruction
+      }
+    }, 50);
   }
 
   private destroyDataTable() {
-    if (this.dataTable) {
-      this.dataTable.destroy();
+    try {
+      if (this.dataTable) {
+        this.dataTable.destroy(true);
+        this.dataTable = null;
+      } else if (this.el?.nativeElement && $.fn?.DataTable?.isDataTable(this.el.nativeElement)) {
+        $(this.el.nativeElement).DataTable().destroy(true);
+      }
+    } catch (e) {
       this.dataTable = null;
     }
   }
@@ -47,3 +60,4 @@ export class DataTableDirective implements OnChanges, OnDestroy {
     this.destroyDataTable();
   }
 }
+

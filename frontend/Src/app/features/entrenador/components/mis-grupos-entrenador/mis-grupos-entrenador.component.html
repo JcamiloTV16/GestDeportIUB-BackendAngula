@@ -28,12 +28,19 @@
 </div>
 
 <div *ngIf="viendoEstudiantes">
-  <div class="d-flex justify-content-between align-items-center mb-3">
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
     <h4 class="fw-bold m-0">Estudiantes - {{ cursoSeleccionado?.deporte_nombre }}</h4>
-    <button class="btn btn-secondary btn-sm" (click)="volverACursos()">
-      <i class="bi bi-arrow-left"></i> Volver a Mis Grupos
-    </button>
+    <div class="d-flex gap-2">
+      <button class="btn btn-danger btn-sm shadow-sm d-flex align-items-center gap-1" (click)="descargarPlanillaPDF()">
+        <i class="bi bi-file-earmark-pdf-fill fs-6"></i>
+        <span>Descargar Planilla Asistencia PDF</span>
+      </button>
+      <button class="btn btn-secondary btn-sm" (click)="volverACursos()">
+        <i class="bi bi-arrow-left"></i> Volver a Mis Grupos
+      </button>
+    </div>
   </div>
+
 
   <div class="card border-0 shadow-sm p-3">
     <div *ngIf="estudiantesCurso.length === 0" class="alert alert-info mb-0">

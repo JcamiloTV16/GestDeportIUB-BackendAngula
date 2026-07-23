@@ -1,4 +1,5 @@
 import psycopg2
+import json
 from fastapi import HTTPException
 from app.config.db_config import get_db_connection
 from fastapi.encoders import jsonable_encoder
@@ -64,7 +65,7 @@ class BaseController:
             cursor = conn.cursor()
             
             columns = list(data.keys())
-            values = list(data.values())
+            values = [json.dumps(val) if isinstance(val, (dict, list)) else val for val in data.values()]
             
             placeholders = ",".join(["%s"] * len(values))
             columns_str = ",".join(columns)
@@ -95,7 +96,7 @@ class BaseController:
             cursor = conn.cursor()
             
             set_clauses = [f"{key} = %s" for key in data.keys()]
-            values = list(data.values())
+            values = [json.dumps(val) if isinstance(val, (dict, list)) else val for val in data.values()]
             values.append(id)
             
             query = f"UPDATE {self.table_name} SET {', '.join(set_clauses)} WHERE id = %s"
@@ -109,6 +110,7 @@ class BaseController:
             return {"resultado": f"{self.table_name} updated"}
             
         except psycopg2.Error as err:
+
             if conn:
                 conn.rollback()
             raise HTTPException(status_code=500, detail=str(err))

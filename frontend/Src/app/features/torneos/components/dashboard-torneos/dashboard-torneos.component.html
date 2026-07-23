@@ -1,15 +1,197 @@
-<div class="card border-0 shadow-sm p-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="fw-bold m-0">Dashboard de Torneos</h4>
+<div class="container-fluid p-0">
+  
+  <!-- Encabezado del Dashboard -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h3 class="fw-bold m-0 text-navy">Dashboard Analítico de Torneos IUB</h3>
+      <p class="text-muted small m-0">Estadísticas institucionales en tiempo real sobre torneos, disciplinas y participación estudiantil.</p>
+    </div>
+    <button class="btn btn-primary btn-sm d-flex align-items-center gap-2 shadow-sm" (click)="cargarDatosDashboard()">
+      <i class="bi bi-arrow-clockwise"></i>
+      <span>Actualizar Datos</span>
+    </button>
   </div>
 
-  <div class="alert alert-info">
-    <i class="bi bi-info-circle me-1"></i> Aquí se incrustará el Dashboard de PowerBI preparado.
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-navy" style="width: 3rem; height: 3rem;" role="status"></div>
+    <p class="text-muted mt-3">Cargando métricas y gráficos del dashboard...</p>
   </div>
 
-  <!-- Contenedor para el iframe de PowerBI -->
-  <div class="ratio ratio-16x9 bg-light rounded d-flex align-items-center justify-content-center" style="border: 2px dashed #ccc;">
-    <span class="text-muted fs-5">Espacio Reservado para PowerBI</span>
-    <!-- <iframe title="Report Section" src="URL_DEL_REPORTE" frameborder="0" allowFullScreen="true"></iframe> -->
+  <div *ngIf="!loading">
+    <!-- Tarjetas de Métricas KPI con Paleta IUB -->
+    <div class="row g-3 mb-4">
+      
+      <!-- Total Torneos (Azul Marino IUB) -->
+      <div class="col-12 col-sm-6 col-lg">
+        <div class="card border-0 shadow-sm p-3 h-100 border-start border-4 border-navy bg-white kpi-card">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <span class="text-muted small fw-semibold text-uppercase">Total Torneos</span>
+              <h2 class="fw-bold m-0 text-navy">{{ totalTorneos }}</h2>
+              <span class="badge bg-navy mt-1">Histórico general</span>
+            </div>
+            <div class="kpi-icon-box bg-navy">
+              <i class="bi bi-trophy-fill fs-4 text-gold"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Torneos En Curso (Azul IUB Light) -->
+      <div class="col-12 col-sm-6 col-lg">
+        <div class="card border-0 shadow-sm p-3 h-100 border-start border-4 border-navy-light bg-white kpi-card">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <span class="text-muted small fw-semibold text-uppercase">En Curso</span>
+              <h2 class="fw-bold m-0 text-navy">{{ torneosEnCurso }}</h2>
+              <span class="badge bg-primary mt-1">En competencia</span>
+            </div>
+            <div class="kpi-icon-box bg-primary bg-opacity-10 text-navy">
+              <i class="bi bi-play-circle-fill fs-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inscripciones Abiertas (Dorado IUB) -->
+      <div class="col-12 col-sm-6 col-lg">
+        <div class="card border-0 shadow-sm p-3 h-100 border-start border-4 border-gold bg-white kpi-card">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <span class="text-muted small fw-semibold text-uppercase">Inscripciones</span>
+              <h2 class="fw-bold m-0 text-gold">{{ torneosInscripcionesAbiertas }}</h2>
+              <span class="badge bg-gold mt-1">Con cupos abiertos</span>
+            </div>
+            <div class="kpi-icon-box bg-gold bg-opacity-25 text-navy">
+              <i class="bi bi-person-plus-fill fs-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Torneos Finalizados (Gris Elegante) -->
+      <div class="col-12 col-sm-6 col-lg">
+        <div class="card border-0 shadow-sm p-3 h-100 border-start border-4 border-secondary bg-white kpi-card">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <span class="text-muted small fw-semibold text-uppercase">Finalizados</span>
+              <h2 class="fw-bold m-0 text-secondary">{{ torneosFinalizados }}</h2>
+              <span class="badge bg-secondary bg-opacity-10 text-secondary mt-1">Culminados</span>
+            </div>
+            <div class="kpi-icon-box bg-secondary bg-opacity-10 text-secondary">
+              <i class="bi bi-check-circle-fill fs-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total Deportistas Inscritos (Azul Marino / Dorado) -->
+      <div class="col-12 col-sm-6 col-lg">
+        <div class="card border-0 shadow-sm p-3 h-100 border-start border-4 border-navy bg-white kpi-card">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <span class="text-muted small fw-semibold text-uppercase">Inscritos</span>
+              <h2 class="fw-bold m-0 text-navy">{{ totalInscritos }}</h2>
+              <span class="badge bg-light text-dark mt-1">Líder: {{ deporteMasPopular }}</span>
+            </div>
+            <div class="kpi-icon-box bg-navy text-gold">
+              <i class="bi bi-people-fill fs-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Sección de Gráficos Analíticos -->
+    <div class="row g-4 mb-4">
+      
+      <!-- Gráfico 1: Torneos por Deporte -->
+      <div class="col-12 col-lg-7">
+        <div class="card border-0 shadow-sm p-4 h-100 bg-white rounded-3">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold m-0 text-navy"><i class="bi bi-bar-chart-fill text-gold me-2"></i>Torneos por Disciplina Deportiva</h5>
+            <span class="badge bg-navy">Consolidado Total</span>
+          </div>
+          <div style="position: relative; height: 260px; width: 100%;">
+            <canvas #deportesChartCanvas></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gráfico 2: Distribución por Estado -->
+      <div class="col-12 col-lg-5">
+        <div class="card border-0 shadow-sm p-4 h-100 bg-white rounded-3">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold m-0 text-navy"><i class="bi bi-pie-chart-fill text-gold me-2"></i>Estado de los Torneos</h5>
+            <span class="badge bg-light text-navy fw-semibold">Porcentaje</span>
+          </div>
+          <div style="position: relative; height: 260px; width: 100%;">
+            <canvas #estadosChartCanvas></canvas>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Sección Inferior: Participantes por Deporte y Torneos Recientes -->
+    <div class="row g-4">
+      
+      <!-- Gráfico 3: Participantes por Deporte -->
+      <div class="col-12 col-lg-6">
+        <div class="card border-0 shadow-sm p-4 h-100 bg-white rounded-3">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold m-0 text-navy"><i class="bi bi-person-lines-fill text-gold me-2"></i>Participación Estudiantil por Deporte</h5>
+            <span class="badge bg-light text-navy fw-semibold">Inscripciones totales</span>
+          </div>
+          <div style="position: relative; height: 240px; width: 100%;">
+            <canvas #participantesChartCanvas></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla de Torneos Destacados -->
+      <div class="col-12 col-lg-6">
+        <div class="card border-0 shadow-sm p-4 h-100 bg-white rounded-3">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold m-0 text-navy"><i class="bi bi-stars text-gold me-2"></i>Resumen General de Torneos</h5>
+            <span class="badge bg-navy">Institucional</span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Torneo</th>
+                  <th>Deporte</th>
+                  <th>Estado</th>
+                  <th class="text-end">Inscritos</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let t of torneos.slice(0, 6)">
+                  <td class="fw-semibold text-navy">{{ t.nombre }}</td>
+                  <td><span class="badge bg-secondary">{{ t.deporte_nombre || 'N/A' }}</span></td>
+                  <td>
+                    <span class="badge" 
+                      [ngClass]="{
+                        'bg-navy': t.estado_torneo === 'En Curso',
+                        'bg-gold text-dark': t.estado_torneo === 'Inscripciones Abiertas',
+                        'bg-secondary': t.estado_torneo === 'Finalizado'
+                      }">
+                      {{ t.estado_torneo }}
+                    </span>
+                  </td>
+                  <td class="text-end fw-bold text-navy">{{ t.total_inscritos || 0 }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
   </div>
+
 </div>

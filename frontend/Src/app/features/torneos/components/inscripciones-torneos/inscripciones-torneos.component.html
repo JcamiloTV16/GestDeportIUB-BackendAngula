@@ -9,19 +9,39 @@
     <button type="button" class="btn-close" (click)="mensajeError = ''"></button>
   </div>
 
-  <div class="card border-0 shadow-sm p-4">
-    <h4 class="fw-bold mb-3"><i class="bi bi-person-check me-2"></i>Gestión de Inscripciones a Torneos</h4>
+  <!-- Banner Destacado: Torneos con Solicitudes Pendientes -->
+  <div *ngIf="torneosConPendientes.length > 0" class="alert alert-warning border-warning shadow-sm mb-4">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+      <div>
+        <strong class="fs-6 text-dark"><i class="bi bi-bell-fill text-warning me-2"></i>Torneos que requieren tu atención inmediata:</strong>
+        <p class="small text-muted mb-0">Haz clic en cualquier torneo para revisar y aprobar la solicitud de los estudiantes.</p>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <button *ngFor="let tp of torneosConPendientes" 
+          class="btn btn-sm btn-dark text-warning d-flex align-items-center gap-2 shadow-sm"
+          (click)="seleccionarTorneoDirecto(tp.id)">
+          <i class="bi bi-exclamation-circle-fill text-warning"></i>
+          <span class="fw-semibold">{{ tp.nombre }}</span>
+          <span class="badge bg-warning text-dark">{{ tp.pendientes_count }} por aprobar</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
-    <!-- Selector de Torneo -->
+  <div class="card border-0 shadow-sm p-4">
+    <h4 class="fw-bold mb-3 text-navy"><i class="bi bi-person-check me-2"></i>Gestión de Inscripciones a Torneos</h4>
+
+    <!-- Selector de Torneo con Distintivos Visuales -->
     <div class="mb-4">
       <label class="form-label fw-semibold">Seleccionar Torneo</label>
-      <select class="form-select" [(ngModel)]="torneoSeleccionadoId" (ngModelChange)="onTorneoChange()">
+      <select class="form-select form-select-lg shadow-sm" [(ngModel)]="torneoSeleccionadoId" (ngModelChange)="onTorneoChange()">
         <option [ngValue]="null">-- Selecciona un torneo --</option>
         <option *ngFor="let t of torneos" [ngValue]="t.id">
-          {{ t.nombre }} ({{ t.estado_torneo }})
+          {{ t.pendientes_count > 0 ? '🔴 ' + t.nombre + ' — (' + t.pendientes_count + ' PENDIENTES DE APROBACIÓN)' : '🟢 ' + t.nombre + ' (' + t.estado_torneo + ')' }}
         </option>
       </select>
     </div>
+
 
     <div *ngIf="loadingTorneos || loadingInscripciones" class="text-center py-4">
       <div class="spinner-border text-primary" role="status"></div>
@@ -37,7 +57,7 @@
         <i class="bi bi-clock-fill me-1"></i> Pendientes de Aprobación ({{ pendientes.length }})
       </h5>
       <div class="table-responsive">
-        <table class="table table-hover align-middle" [appDataTable]="pendientes">
+        <table class="table table-hover align-middle">
           <thead class="table-light">
             <tr>
               <th>#</th>
@@ -52,7 +72,7 @@
             <tr *ngFor="let ins of pendientes; let i = index">
               <td>{{ i + 1 }}</td>
               <td class="fw-semibold">{{ ins.estudiante_nombre }}</td>
-              <td>{{ ins.estudiante_correo }}</td>
+              <td>{{ ins.estudiante_correo || '—' }}</td>
               <td>{{ ins.fecha_inscripcion | date:'dd/MM/yyyy HH:mm' }}</td>
               <td><span class="badge" [ngClass]="getBadgeClass(ins.estado_inscripcion)">{{ ins.estado_inscripcion }}</span></td>
               <td class="text-center">
@@ -77,7 +97,8 @@
         <i class="bi bi-check2-all me-1"></i> Inscripciones Procesadas ({{ procesadas.length }})
       </h5>
       <div class="table-responsive">
-        <table class="table table-hover align-middle" [appDataTable]="procesadas">
+        <table class="table table-hover align-middle">
+
           <thead class="table-light">
             <tr>
               <th>#</th>
@@ -91,8 +112,9 @@
             <tr *ngFor="let ins of procesadas; let i = index">
               <td>{{ i + 1 }}</td>
               <td class="fw-semibold">{{ ins.estudiante_nombre }}</td>
-              <td>{{ ins.estudiante_correo }}</td>
+              <td>{{ ins.estudiante_correo || '—' }}</td>
               <td>{{ ins.fecha_inscripcion | date:'dd/MM/yyyy HH:mm' }}</td>
+
               <td><span class="badge" [ngClass]="getBadgeClass(ins.estado_inscripcion)">{{ ins.estado_inscripcion }}</span></td>
             </tr>
           </tbody>

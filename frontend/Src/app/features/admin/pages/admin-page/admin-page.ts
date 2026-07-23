@@ -25,6 +25,8 @@ import { AuditoriasPage } from '../../../auditorias/pages/auditorias-page/audito
 })
 export class AdminPageComponent implements OnInit {
   vistaActual: 'dashboard' | 'usuarios' | 'deportes' | 'cursos' | 'torneos' | 'auditorias' = 'dashboard';
+
+
   
   // Dashboard state
   stats: any = {};
@@ -43,6 +45,8 @@ export class AdminPageComponent implements OnInit {
   }
 
   cambiarVista(vista: 'dashboard' | 'usuarios' | 'deportes' | 'cursos' | 'torneos' | 'auditorias') {
+
+
     this.vistaActual = vista;
     if (vista === 'dashboard') {
       this.cargarStats();

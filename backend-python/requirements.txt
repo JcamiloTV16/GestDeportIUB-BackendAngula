@@ -6,4 +6,6 @@ python-dotenv
 bcrypt
 python-jose[cryptography]
 python-multipart>=0.0.18
-pytz
+pyjwt[crypto]
+requests
+uvicorn[standard]

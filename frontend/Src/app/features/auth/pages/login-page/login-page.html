@@ -6,28 +6,37 @@
           <i class="bi bi-person-badge-fill text-white fs-1"></i>
         </div>
         <h2 class="fw-bold text-primary">GestionDepor<span class="text-dark">IUB</span></h2>
-        <p class="text-muted">Inicia sesion para acceder a tu panel</p>
+        <p class="text-muted">Inicia sesión para acceder a tu panel</p>
       </div>
 
       <div *ngIf="errorMessage" class="alert alert-danger text-center py-2">{{ errorMessage }}</div>
 
       <div class="form-floating mb-3">
-        <input id="emailInput" type="email" class="form-control" placeholder="Correo Electronico" [(ngModel)]="email">
-        <label for="emailInput">Correo Electronico</label>
+        <input id="emailInput" type="email" class="form-control" placeholder="Correo Electrónico" [(ngModel)]="email">
+        <label for="emailInput">Correo Electrónico</label>
       </div>
 
       <div class="form-floating mb-4">
-        <input id="passwordInput" type="password" class="form-control" placeholder="Contrasena" [(ngModel)]="password" (keydown.enter)="iniciarSesion()">
-        <label for="passwordInput">Contrasena</label>
+        <input id="passwordInput" type="password" class="form-control" placeholder="Contraseña" [(ngModel)]="password" (keydown.enter)="iniciarSesion()">
+        <label for="passwordInput">Contraseña</label>
       </div>
 
-      <button class="btn btn-primary btn-lg w-100 shadow-sm py-3 fw-bold" type="button" (click)="iniciarSesion()" [disabled]="loading">
+      <button class="btn btn-primary btn-lg w-100 shadow-sm py-3 fw-bold mb-3" type="button" (click)="iniciarSesion()" [disabled]="loading">
         <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
         {{ loading ? 'Cargando...' : 'Ingresar' }}
       </button>
 
+      <div class="d-flex align-items-center my-3">
+        <hr class="flex-grow-1 border-secondary opacity-25">
+        <span class="px-2 text-muted small">ó continúa con</span>
+        <hr class="flex-grow-1 border-secondary opacity-25">
+      </div>
+
+      <!-- Contenedor del Botón Oficial de Google Sign-In -->
+      <div id="googleBtnContainer" class="d-flex justify-content-center w-100 my-2"></div>
+
       <div class="text-center mt-4">
-        <a routerLink="/recover" class="text-decoration-none text-muted small">Olvidaste tu contrasena?</a>
+        <a routerLink="/recover" class="text-decoration-none text-muted small">¿Olvidaste tu contraseña?</a>
       </div>
     </div>
   </div>

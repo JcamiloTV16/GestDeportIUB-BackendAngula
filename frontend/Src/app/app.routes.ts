@@ -63,11 +63,6 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auditorias/pages/auditorias-page/auditorias-page').then((m) => m.AuditoriasPage)
   },
   {
-    path: 'chatbot',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/chatbot/pages/chatbot-page/chatbot-page').then((m) => m.ChatbotPage)
-  },
-  {
     path: 'inscripciones',
     canActivate: [authGuard],
     loadComponent: () => import('./features/inscripciones/pages/inscripciones-page/inscripciones-page').then((m) => m.InscripcionesPage)

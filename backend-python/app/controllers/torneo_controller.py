@@ -41,12 +41,14 @@ class TorneoController(BaseController):
             cursor.execute("""
                 SELECT t.*, d.nombre as deporte_nombre, u.nombre as creador_nombre,
                        (SELECT COUNT(*) FROM inscripciones_torneo it
-                        WHERE it.torneo_id = t.id AND it.estado = TRUE) as total_inscritos
+                        WHERE it.torneo_id = t.id AND it.estado = TRUE) as total_inscritos,
+                       (SELECT COUNT(*) FROM inscripciones_torneo it
+                        WHERE it.torneo_id = t.id AND it.estado_inscripcion = 'Pendiente' AND it.estado = TRUE) as pendientes_count
                 FROM torneos t
                 LEFT JOIN deportes d ON t.deporte_id = d.id
                 LEFT JOIN usuarios u ON t.creado_por = u.id
                 WHERE t.estado = TRUE AND t.estado_torneo != 'Finalizado'
-                ORDER BY t.fecha_inicio ASC
+                ORDER BY pendientes_count DESC, t.fecha_inicio ASC
             """)
             result = cursor.fetchall()
             colnames = [desc[0] for desc in cursor.description]
@@ -56,6 +58,7 @@ class TorneoController(BaseController):
             raise HTTPException(status_code=500, detail=str(err))
         finally:
             if conn: conn.close()
+
 
     def cambiar_estado(self, id: int, nuevo_estado: str):
         conn = None

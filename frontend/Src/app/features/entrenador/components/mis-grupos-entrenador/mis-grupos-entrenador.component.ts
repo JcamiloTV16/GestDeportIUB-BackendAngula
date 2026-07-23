@@ -5,6 +5,8 @@ import { AuthService } from '../../../../core/auth/auth.service';
 
 import { DataTableDirective } from '../../../../core/directives/data-table.directive';
 
+import { PdfExportService } from '../../../../core/services/pdf-export.service';
+
 @Component({
   selector: 'app-mis-grupos-entrenador',
   standalone: true,
@@ -22,8 +24,10 @@ export class MisGruposEntrenadorComponent implements OnInit {
 
   constructor(
     private readonly cursosService: CursosService,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly pdfService: PdfExportService
   ) {}
+
 
   ngOnInit() {
     this.cargarCursos();
@@ -56,9 +60,15 @@ export class MisGruposEntrenadorComponent implements OnInit {
     }
   }
 
+  descargarPlanillaPDF() {
+    if (!this.cursoSeleccionado) return;
+    this.pdfService.generarPlanillaAsistencia(this.cursoSeleccionado, this.estudiantesCurso);
+  }
+
   volverACursos() {
     this.viendoEstudiantes = false;
     this.cursoSeleccionado = null;
     this.estudiantesCurso = [];
   }
 }
+

@@ -1,0 +1,58 @@
+<!-- Floating Toggle Button -->
+<button class="chat-fab" (click)="toggleChat()" [class.open]="isOpen">
+  <i class="bi" [ngClass]="isOpen ? 'bi-x-lg' : 'bi-chat-dots-fill'"></i>
+  <span *ngIf="hasNewMessage && !isOpen" class="notification-badge"></span>
+</button>
+
+<!-- Chat Panel -->
+<div class="chat-panel" [class.visible]="isOpen">
+
+  <!-- Panel Header -->
+  <div class="panel-header">
+    <div class="panel-header-left">
+      <div class="panel-avatar">
+        <i class="bi bi-robot"></i>
+      </div>
+      <div>
+        <h6 class="mb-0 fw-bold">Asistente IUB</h6>
+        <small class="panel-status">
+          <span class="panel-dot"></span> En línea
+        </small>
+      </div>
+    </div>
+    <button class="panel-close" (click)="closeChat()">
+      <i class="bi bi-dash-lg"></i>
+    </button>
+  </div>
+
+  <!-- Panel Messages -->
+  <div class="panel-messages" #widgetMessages>
+    <div *ngFor="let msg of messages" class="w-msg" [ngClass]="msg.sender">
+      <div *ngIf="msg.sender === 'bot'" class="w-bot-avatar">
+        <i class="bi bi-robot"></i>
+      </div>
+      <div class="w-bubble" [ngClass]="msg.sender">
+        <div *ngIf="msg.isTyping" class="w-typing">
+          <span></span><span></span><span></span>
+        </div>
+        <div *ngIf="!msg.isTyping" class="w-text" [innerHTML]="msg.text"></div>
+        <div *ngIf="!msg.isTyping" class="w-time">{{ msg.timestamp | date:'HH:mm' }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel Input -->
+  <div class="panel-input">
+    <input
+      type="text"
+      [(ngModel)]="userInput"
+      (keydown)="onKeyDown($event)"
+      placeholder="Escribe tu pregunta..."
+      [disabled]="isLoading"
+      autocomplete="off"
+    />
+    <button (click)="enviarMensaje()" [disabled]="!userInput.trim() || isLoading">
+      <i class="bi bi-send-fill"></i>
+    </button>
+  </div>
+</div>

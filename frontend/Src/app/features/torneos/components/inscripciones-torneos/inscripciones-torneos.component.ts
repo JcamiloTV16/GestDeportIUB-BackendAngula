@@ -32,12 +32,30 @@ export class InscripcionesTorneosComponent implements OnInit {
       this.torneos = (res.resultado || []).filter(
         (t: any) => t.estado_torneo === 'Inscripciones Abiertas' || t.estado_torneo === 'En Curso'
       );
+
+      if (this.torneos.length > 0) {
+        // Priorizar seleccionar el primer torneo que tenga pendientes por aprobar
+        const torneoConPendiente = this.torneos.find((t: any) => Number(t.pendientes_count || 0) > 0);
+        this.torneoSeleccionadoId = torneoConPendiente ? torneoConPendiente.id : this.torneos[0].id;
+        await this.onTorneoChange();
+      }
     } catch (e) {
       console.error(e);
     } finally {
       this.loadingTorneos = false;
     }
   }
+
+  async seleccionarTorneoDirecto(id: number) {
+    this.torneoSeleccionadoId = id;
+    await this.onTorneoChange();
+  }
+
+  get torneosConPendientes(): any[] {
+    return this.torneos.filter((t: any) => Number(t.pendientes_count || 0) > 0);
+  }
+
+
 
   async onTorneoChange() {
     if (!this.torneoSeleccionadoId) {

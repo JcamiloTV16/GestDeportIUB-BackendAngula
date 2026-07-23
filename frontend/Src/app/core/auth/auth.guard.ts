@@ -6,7 +6,11 @@ export const authGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
-  return auth.user && auth.token ? true : router.parseUrl('/login');
+  if (auth.user && auth.token) {
+    return true;
+  }
+
+  return router.parseUrl('/login');
 };
 
 export const publicOnlyGuard: CanActivateFn = () => {

@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { AfterViewInit, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { GoogleAuthService } from '../../../../core/auth/google-auth.service';
 import { AuthApiService } from '../../services/auth-api.service';
 
 @Component({
@@ -11,7 +12,7 @@ import { AuthApiService } from '../../services/auth-api.service';
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './login-page.html'
 })
-export class LoginPage {
+export class LoginPage implements AfterViewInit {
   email = '';
   password = '';
   loading = false;
@@ -20,8 +21,13 @@ export class LoginPage {
   constructor(
     private readonly authApi: AuthApiService,
     private readonly auth: AuthService,
+    private readonly googleAuth: GoogleAuthService,
     private readonly router: Router
   ) {}
+
+  ngAfterViewInit(): void {
+    void this.googleAuth.renderGoogleButton('googleBtnContainer');
+  }
 
   async iniciarSesion(): Promise<void> {
     if (!this.email || !this.password) {
@@ -34,7 +40,13 @@ export class LoginPage {
     try {
       const data = await this.authApi.login(this.email, this.password);
       this.auth.setSession(data.user, data.access_token);
-      await this.router.navigate([this.auth.role === 'admin' ? '/admin' : this.auth.role === 'entrenador' ? '/entrenador' : '/estudiante']);
+      await this.router.navigate([
+        this.auth.role === 'admin'
+          ? '/admin'
+          : this.auth.role === 'entrenador'
+          ? '/entrenador'
+          : '/estudiante'
+      ]);
     } catch (error: any) {
       this.errorMessage = error.message || 'Error al iniciar sesion';
     } finally {
