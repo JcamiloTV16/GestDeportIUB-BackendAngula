@@ -24,7 +24,8 @@ export class App {
   }
 
   get showChatbot(): boolean {
-    return this.showShell && this.auth.role === 'estudiante';
+    const chatRoles = ['estudiante', 'entrenador', 'admin'];
+    return this.showShell && chatRoles.includes(this.auth.role);
   }
 
 }

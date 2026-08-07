@@ -1,13 +1,17 @@
-import { Component, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewChecked, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ChatbotService } from '../../services/chatbot.service';
+import { Subscription } from 'rxjs';
+import { WebSocketService, WebSocketMessage, ChatContact } from '../../../../core/services/websocket.service';
+import { AuthService } from '../../../../core/auth/auth.service';
 
 interface ChatMessage {
   text: string;
-  sender: 'user' | 'bot';
+  sender: 'user' | 'bot' | 'system';
+  senderName?: string;
+  senderId?: string;
+  recipientId?: string;
   timestamp: Date;
-  isTyping?: boolean;
 }
 
 @Component({
@@ -17,74 +21,116 @@ interface ChatMessage {
   templateUrl: './chatbot-page.html',
   styleUrls: ['./chatbot-page.css']
 })
-export class ChatbotPage implements AfterViewChecked {
+export class ChatbotPage implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
 
   messages: ChatMessage[] = [];
+  contacts: ChatContact[] = [];
+  selectedContactId: number | null = null;
   userInput = '';
-  isLoading = false;
+  isConnected = false;
 
-  constructor(private readonly chatbotService: ChatbotService) {
-    // Mensaje de bienvenida
-    this.messages.push({
-      text: '¡Hola! 👋 Soy el Asistente Virtual del Departamento de Deportes de la IUB. Puedo ayudarte con información sobre reglamentos, inscripciones, escenarios deportivos, protocolos y más. ¿En qué puedo ayudarte?',
-      sender: 'bot',
-      timestamp: new Date()
+  private wsSubscription!: Subscription;
+  private statusSubscription!: Subscription;
+
+  constructor(
+    private readonly wsService: WebSocketService,
+    private readonly authService: AuthService
+  ) {}
+
+  get selectedContact(): ChatContact | null {
+    if (!this.selectedContactId) return null;
+    return this.contacts.find(c => c.id === Number(this.selectedContactId)) || null;
+  }
+
+  async ngOnInit() {
+    const currentUser = this.authService.user;
+    const currentUserId = currentUser?.id || 1;
+    const clientId = `user_${currentUserId}`;
+
+    this.wsService.connect(clientId);
+
+    // Cargar lista de contactos disponibles (Entrenadores, Admins, Deportistas)
+    try {
+      const res = await this.wsService.getContacts(currentUserId);
+      this.contacts = res.contacts || [];
+      if (this.contacts.length > 0) {
+        this.selectedContactId = this.contacts[0].id;
+      }
+    } catch (e) {
+      console.error('Error cargando contactos de chat:', e);
+    }
+
+    this.statusSubscription = this.wsService.isConnected$.subscribe(connected => {
+      this.isConnected = connected;
     });
+
+    this.wsSubscription = this.wsService.messages$.subscribe((msg: WebSocketMessage) => {
+      const myClientId = this.wsService.getClientId();
+      const isMe = msg.sender_id === myClientId;
+
+      if (msg.type === 'system' || msg.type === 'info') {
+        this.messages.push({
+          text: msg.text,
+          sender: 'system',
+          senderName: msg.sender,
+          timestamp: new Date(msg.timestamp)
+        });
+      } else if (!isMe) {
+        this.messages.push({
+          text: msg.text,
+          sender: 'bot',
+          senderName: msg.sender,
+          senderId: msg.sender_id,
+          recipientId: msg.recipient_id,
+          timestamp: new Date(msg.timestamp)
+        });
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.wsSubscription) this.wsSubscription.unsubscribe();
+    if (this.statusSubscription) this.statusSubscription.unsubscribe();
   }
 
   ngAfterViewChecked() {
     this.scrollToBottom();
   }
 
-  async enviarMensaje() {
-    const texto = this.userInput.trim();
-    if (!texto || this.isLoading) return;
+  get activeMessages(): ChatMessage[] {
+    if (!this.selectedContactId) return this.messages;
+    const targetClientId = `user_${this.selectedContactId}`;
 
-    // Agregar mensaje del usuario
+    return this.messages.filter(m =>
+      m.sender === 'system' ||
+      (m.recipientId === targetClientId) ||
+      (m.senderId === targetClientId)
+    );
+  }
+
+  enviarMensaje() {
+    const texto = this.userInput.trim();
+    if (!texto || !this.selectedContactId) return;
+
+    const currentUser = this.authService.user;
+    const senderName = currentUser?.nombre || currentUser?.email || 'Usuario';
+    const targetClientId = `user_${this.selectedContactId}`;
+
+    // Agregar mensaje localmente
     this.messages.push({
       text: texto,
       sender: 'user',
+      senderName: senderName,
+      senderId: this.wsService.getClientId(),
+      recipientId: targetClientId,
       timestamp: new Date()
     });
 
+    // Enviar por WebSocket al destinatario seleccionado
+    this.wsService.sendMessage(texto, targetClientId, senderName);
+
     this.userInput = '';
-    this.isLoading = true;
-
-    // Agregar indicador de "escribiendo..."
-    const typingMsg: ChatMessage = {
-      text: '',
-      sender: 'bot',
-      timestamp: new Date(),
-      isTyping: true
-    };
-    this.messages.push(typingMsg);
-
-    try {
-      const res = await this.chatbotService.enviarMensajeRAG(texto);
-      // Reemplazar indicador de typing con respuesta real
-      const idx = this.messages.indexOf(typingMsg);
-      if (idx > -1) {
-        this.messages[idx] = {
-          text: res.respuesta,
-          sender: 'bot',
-          timestamp: new Date(),
-          isTyping: false
-        };
-      }
-    } catch (error) {
-      const idx = this.messages.indexOf(typingMsg);
-      if (idx > -1) {
-        this.messages[idx] = {
-          text: 'Lo siento, en este momento no puedo procesar tu consulta. Por favor, intenta de nuevo en un momento.',
-          sender: 'bot',
-          timestamp: new Date(),
-          isTyping: false
-        };
-      }
-    } finally {
-      this.isLoading = false;
-    }
   }
 
   onKeyDown(event: KeyboardEvent) {

@@ -9,14 +9,25 @@
 
   <!-- Panel Header -->
   <div class="panel-header">
-    <div class="panel-header-left">
+    <div class="panel-header-left w-100 me-2">
       <div class="panel-avatar">
-        <i class="bi bi-robot"></i>
+        <i class="bi bi-person-lines-fill"></i>
       </div>
-      <div>
-        <h6 class="mb-0 fw-bold">Asistente IUB</h6>
-        <small class="panel-status">
-          <span class="panel-dot"></span> En línea
+      <div class="flex-grow-1">
+        <h6 class="mb-0 fw-bold">Mensajería Directa</h6>
+        <div *ngIf="contacts.length > 0" class="mt-1">
+          <select
+            class="form-select form-select-sm text-dark bg-light border-0 py-0"
+            style="font-size: 0.78rem;"
+            [(ngModel)]="selectedContactId"
+          >
+            <option *ngFor="let c of contacts" [value]="c.id">
+              {{ c.nombre }} ({{ c.rol }})
+            </option>
+          </select>
+        </div>
+        <small *ngIf="contacts.length === 0" class="panel-status text-warning">
+          Sin contactos disponibles
         </small>
       </div>
     </div>
@@ -25,18 +36,29 @@
     </button>
   </div>
 
+  <!-- Connection Status Banner -->
+  <div class="px-3 py-1 bg-light border-bottom d-flex align-items-center justify-content-between">
+    <small class="panel-status" [ngClass]="{'text-success': isConnected, 'text-warning': !isConnected}">
+      <span class="panel-dot" [style.background-color]="isConnected ? '#10b981' : '#f59e0b'"></span>
+      {{ isConnected ? 'En línea' : 'Reconectando...' }}
+    </small>
+    <small *ngIf="selectedContact" class="text-muted ms-2 text-truncate" style="max-width: 140px;">
+      Para: <strong>{{ selectedContact.nombre }}</strong>
+    </small>
+  </div>
+
   <!-- Panel Messages -->
   <div class="panel-messages" #widgetMessages>
-    <div *ngFor="let msg of messages" class="w-msg" [ngClass]="msg.sender">
-      <div *ngIf="msg.sender === 'bot'" class="w-bot-avatar">
-        <i class="bi bi-robot"></i>
+    <div *ngFor="let msg of activeMessages" class="w-msg" [ngClass]="msg.sender">
+      <div *ngIf="msg.sender === 'bot' || msg.sender === 'system'" class="w-bot-avatar">
+        <i class="bi" [ngClass]="msg.sender === 'system' ? 'bi-info-circle-fill' : 'bi-person-circle'"></i>
       </div>
       <div class="w-bubble" [ngClass]="msg.sender">
-        <div *ngIf="msg.isTyping" class="w-typing">
-          <span></span><span></span><span></span>
+        <div *ngIf="msg.senderName && msg.sender !== 'user'" class="fw-bold small mb-1 text-primary">
+          {{ msg.senderName }}
         </div>
-        <div *ngIf="!msg.isTyping" class="w-text" [innerHTML]="msg.text"></div>
-        <div *ngIf="!msg.isTyping" class="w-time">{{ msg.timestamp | date:'HH:mm' }}</div>
+        <div class="w-text" [innerHTML]="msg.text"></div>
+        <div class="w-time">{{ msg.timestamp | date:'HH:mm' }}</div>
       </div>
     </div>
   </div>
@@ -47,11 +69,11 @@
       type="text"
       [(ngModel)]="userInput"
       (keydown)="onKeyDown($event)"
-      placeholder="Escribe tu pregunta..."
-      [disabled]="isLoading"
+      [placeholder]="selectedContact ? 'Escribir a ' + selectedContact.nombre + '...' : 'Selecciona un contacto...'"
+      [disabled]="!isConnected || !selectedContactId"
       autocomplete="off"
     />
-    <button (click)="enviarMensaje()" [disabled]="!userInput.trim() || isLoading">
+    <button (click)="enviarMensaje()" [disabled]="!userInput.trim() || !isConnected || !selectedContactId">
       <i class="bi bi-send-fill"></i>
     </button>
   </div>

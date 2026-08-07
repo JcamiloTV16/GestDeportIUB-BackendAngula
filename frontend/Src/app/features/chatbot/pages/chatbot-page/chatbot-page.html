@@ -1,34 +1,50 @@
 <div class="chatbot-container">
   <!-- Header -->
-  <div class="chat-header">
-    <div class="header-avatar">
-      <i class="bi bi-robot"></i>
+  <div class="chat-header d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center">
+      <div class="header-avatar me-3">
+        <i class="bi bi-chat-square-text-fill"></i>
+      </div>
+      <div class="header-info">
+        <h5 class="mb-0 fw-bold">Mensajería en Tiempo Real (1 a 1)</h5>
+        <span class="status-indicator" [ngClass]="{'text-success': isConnected, 'text-warning': !isConnected}">
+          <span class="status-dot" [style.background-color]="isConnected ? '#10b981' : '#f59e0b'"></span>
+          {{ isConnected ? 'En línea — WebSocket Conectado' : 'Reconectando...' }}
+        </span>
+      </div>
     </div>
-    <div class="header-info">
-      <h5 class="mb-0 fw-bold">Asistente Deportivo IUB</h5>
-      <span class="status-indicator">
-        <span class="status-dot"></span>
-        En línea — Potenciado por IA
-      </span>
+
+    <!-- Contact Selector Dropdown -->
+    <div *ngIf="contacts.length > 0" class="d-flex align-items-center">
+      <label class="me-2 fw-semibold text-white small">Hablar con:</label>
+      <select
+        class="form-select form-select-sm text-dark bg-light border-0"
+        style="min-width: 220px;"
+        [(ngModel)]="selectedContactId"
+      >
+        <option *ngFor="let c of contacts" [value]="c.id">
+          {{ c.nombre }} ({{ c.rol }})
+        </option>
+      </select>
     </div>
   </div>
 
   <!-- Messages Area -->
   <div class="messages-area" #messagesContainer>
-    <div *ngFor="let msg of messages" class="message-wrapper" [ngClass]="msg.sender">
+    <div *ngFor="let msg of activeMessages" class="message-wrapper" [ngClass]="msg.sender">
 
-      <!-- Bot avatar -->
-      <div *ngIf="msg.sender === 'bot'" class="bot-avatar">
-        <i class="bi bi-robot"></i>
+      <!-- Bot / System avatar -->
+      <div *ngIf="msg.sender === 'bot' || msg.sender === 'system'" class="bot-avatar">
+        <i class="bi" [ngClass]="msg.sender === 'system' ? 'bi-info-circle-fill' : 'bi-person-circle'"></i>
       </div>
 
       <!-- Message bubble -->
       <div class="message-bubble" [ngClass]="msg.sender">
-        <div *ngIf="msg.isTyping" class="typing-indicator">
-          <span></span><span></span><span></span>
+        <div *ngIf="msg.senderName && msg.sender !== 'user'" class="fw-bold small mb-1 text-primary">
+          {{ msg.senderName }}
         </div>
-        <div *ngIf="!msg.isTyping" class="message-text" [innerHTML]="msg.text"></div>
-        <div *ngIf="!msg.isTyping" class="message-time">
+        <div class="message-text" [innerHTML]="msg.text"></div>
+        <div class="message-time">
           {{ msg.timestamp | date:'HH:mm' }}
         </div>
       </div>
@@ -43,21 +59,21 @@
         class="chat-input"
         [(ngModel)]="userInput"
         (keydown)="onKeyDown($event)"
-        placeholder="Escribe tu pregunta sobre deportes, reglamentos, inscripciones..."
-        [disabled]="isLoading"
+        [placeholder]="selectedContact ? 'Escribir mensaje directo a ' + selectedContact.nombre + '...' : 'Selecciona un contacto...'"
+        [disabled]="!isConnected || !selectedContactId"
         autocomplete="off"
       />
       <button
         class="send-btn"
         (click)="enviarMensaje()"
-        [disabled]="!userInput.trim() || isLoading"
+        [disabled]="!userInput.trim() || !isConnected || !selectedContactId"
       >
         <i class="bi bi-send-fill"></i>
       </button>
     </div>
     <p class="input-hint">
-      <i class="bi bi-info-circle me-1"></i>
-      Puedo responder sobre reglamentos, escenarios deportivos, protocolos, inscripciones y más.
+      <i class="bi bi-shield-check me-1"></i>
+      Chat privado 1 a 1 entre Deportistas, Entrenadores y Administradores de Soporte.
     </p>
   </div>
 </div>
