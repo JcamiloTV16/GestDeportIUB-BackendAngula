@@ -150,6 +150,7 @@ npm-debug.log*
 .svelte-kit/
 .vercel/
 dist/
+.env
 .env.local
 .env.*.local
 

@@ -32,12 +32,19 @@ export class WebSocketService {
   constructor(private readonly api: ApiService) {}
 
   public connect(customClientId?: string): void {
-    if (customClientId) {
+    let reconnectNeeded = false;
+    
+    if (customClientId && customClientId !== this.clientId) {
       this.clientId = customClientId;
+      reconnectNeeded = true;
     }
 
     if (this.socket && (this.socket.readyState === WebSocket.OPEN || this.socket.readyState === WebSocket.CONNECTING)) {
-      return;
+      if (reconnectNeeded) {
+        this.socket.close(); // Forces a reconnect with the new clientId
+      } else {
+        return;
+      }
     }
 
     const wsUrl = `ws://localhost:8000/ws/${this.clientId}`;
