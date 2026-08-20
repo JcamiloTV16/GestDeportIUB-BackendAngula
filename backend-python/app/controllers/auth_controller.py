@@ -15,8 +15,9 @@ class AuthController:
                 SELECT u.id, u.password, u.nombre, r.nombre_rol, u.programa_id 
                 FROM usuarios u
                 LEFT JOIN roles r ON u.rol_id = r.id
-                WHERE u.email = %s AND u.estado = TRUE
-            """, (login_data.email,))
+                WHERE LOWER(u.email) = LOWER(%s) AND u.estado = TRUE
+            """, (login_data.email.strip(),))
+
             user = cursor.fetchone()
             
             if not user:

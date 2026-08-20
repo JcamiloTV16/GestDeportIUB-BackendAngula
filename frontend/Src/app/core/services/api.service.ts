@@ -15,7 +15,7 @@ export class ApiService {
     const text = await response.text();
     const data = text ? JSON.parse(text) : {};
 
-    if (response.status === 401) {
+    if (response.status === 401 && !url.includes('/auth/login')) {
       this.auth.logout();
       throw new Error('Sesion expirada. Por favor, inicia sesion nuevamente.');
     }
@@ -23,6 +23,7 @@ export class ApiService {
     if (!response.ok) {
       throw new Error(data.detail || 'Error en la solicitud.');
     }
+
 
     return data;
   }
