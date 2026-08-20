@@ -8,4 +8,5 @@ python-jose[cryptography]
 python-multipart>=0.0.18
 pyjwt[crypto]
 requests
-uvicorn[standard]
+pytz
+pydantic

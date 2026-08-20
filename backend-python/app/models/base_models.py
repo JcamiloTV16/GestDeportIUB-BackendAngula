@@ -1,5 +1,4 @@
 from datetime import datetime
-import pytz
 from pydantic import Field
 
 def get_colombia_time():
@@ -10,7 +9,10 @@ def get_colombia_time():
     except Exception:
         # Si falla (p. ej. zona no disponible), usamos pytz como respaldo
         try:
+            import pytz
             tz = pytz.timezone('America/Bogota')
         except Exception:
-            tz = pytz.UTC
+            from datetime import timezone
+            tz = timezone.utc
     return datetime.now(tz)
+
