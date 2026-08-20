@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
+import { environment } from '../../../environments/environment';
 
-export const API = 'http://localhost:8000';
-export const NODE_API = 'http://localhost:3000';
+export const API = environment.apiUrl;
+export const NODE_API = environment.nodeApiUrl;
+
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {

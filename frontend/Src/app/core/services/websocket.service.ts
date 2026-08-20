@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { API, ApiService } from './api.service';
+import { environment } from '../../../environments/environment';
+
 
 export interface ChatContact {
   id: number;
@@ -47,7 +49,9 @@ export class WebSocketService {
       }
     }
 
-    const wsUrl = `ws://localhost:8000/ws/${this.clientId}`;
+    const baseUrl = environment.apiUrl.replace(/^http/, 'ws');
+    const wsUrl = `${baseUrl}/ws/${this.clientId}`;
+
 
     try {
       this.socket = new WebSocket(wsUrl);
